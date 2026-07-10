@@ -73,11 +73,11 @@ def extract_module_name(filename: str) -> str:
     return path.stem
 
 
-def generate_markdown(coverage_data: dict) -> str:
+def generate_markdown(coverage_data: dict, language: str = "Code") -> str:
     """Generate markdown report from coverage data."""
     lines = []
 
-    lines.append("# Rust Code Coverage Report\n")
+    lines.append(f"# {language} Code Coverage Report\n")
 
     # Overall summary
     lines.append("## Overall Coverage\n")
@@ -156,10 +156,15 @@ def main():
         type=Path,
         help="Path to output Markdown file",
     )
+    parser.add_argument(
+        "language",
+        type=str,
+        help="Programming language name (e.g., Rust, Python)",
+    )
     args = parser.parse_args()
 
     coverage_data = parse_cobertura(args.coverage_xml)
-    markdown = generate_markdown(coverage_data)
+    markdown = generate_markdown(coverage_data, args.language)
 
     with open(args.output_md, "w") as f:
         f.write(markdown)
