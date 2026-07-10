@@ -2,7 +2,7 @@ use crate::structs::transaction::Transaction;
 use regex::Regex;
 /// Represents an incomplete transaction.
 /// Serves as a temporary structure to hold transaction data before it is fully parsed, validated, and filled.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ProtoTransaction {
     /// Date of the transaction as a timestamp (milliseconds since epoch)
     pub date: Option<i64>,
@@ -19,13 +19,7 @@ pub struct ProtoTransaction {
 impl ProtoTransaction {
     /// Create a new ProtoTransaction.
     pub fn new() -> Self {
-        Self {
-            date: None,
-            index: 0,
-            description: String::new(),
-            amount: None,
-            balance: None,
-        }
+        Self::default()
     }
 
     /// Returns true if all required fields are present and description is not empty.
@@ -53,26 +47,10 @@ impl ProtoTransaction {
     pub fn has_required_fields_set(&self, required_fields: &[String]) -> bool {
         for field in required_fields {
             match field.as_str() {
-                "date" => {
-                    if self.date.is_none() {
-                        return false;
-                    }
-                }
-                "description" => {
-                    if self.description.is_empty() {
-                        return false;
-                    }
-                }
-                "amount" => {
-                    if self.amount.is_none() {
-                        return false;
-                    }
-                }
-                "balance" => {
-                    if self.balance.is_none() {
-                        return false;
-                    }
-                }
+                "date" if self.date.is_none() => return false,
+                "description" if self.description.is_empty() => return false,
+                "amount" if self.amount.is_none() => return false,
+                "balance" if self.balance.is_none() => return false,
                 _ => {}
             }
         }

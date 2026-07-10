@@ -12,18 +12,12 @@ use crate::configs::validate::utils::iso_3166_1_alpha_2::is_valid_iso_3166_1_alp
 pub fn key(key: &str) -> Result<(), String> {
     // Check if key contains whitespace
     if key.contains(char::is_whitespace) {
-        return Err(format!(
-            "Key must not contain whitespace. Found: '{}'",
-            key
-        ));
+        return Err(format!("Key must not contain whitespace. Found: '{}'", key));
     }
 
     // Check if key is all lowercase
     if key != key.to_lowercase() {
-        return Err(format!(
-            "Key must be all lowercase. Found: '{}'",
-            key
-        ));
+        return Err(format!("Key must be all lowercase. Found: '{}'", key));
     }
 
     // Split by "__" and check component count

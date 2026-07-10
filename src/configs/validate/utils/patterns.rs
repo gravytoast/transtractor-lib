@@ -8,8 +8,7 @@ pub fn validate_patterns(patterns: &Vec<Regex>, allow_empty: bool) -> Result<(),
     for pattern in patterns {
         let pattern_str = pattern.as_str();
         // Count only whitespace separators: \s, \s+, \s*, literal space
-        let separator_count =
-            pattern_str.matches(r"\s").count() + pattern_str.matches(" ").count();
+        let separator_count = pattern_str.matches(r"\s").count() + pattern_str.matches(" ").count();
         // Add 1 because N separators means N+1 tokens
         let token_count = separator_count + 1;
         if token_count > 10 {

@@ -5,7 +5,9 @@ use regex::Regex;
 pub struct Format4;
 
 impl AmountFormat for Format4 {
-    fn num_items(&self) -> usize { 2 }
+    fn num_items(&self) -> usize {
+        2
+    }
 
     fn parse(&self, currency_str: &str) -> Option<f64> {
         let currency_str = currency_str.to_lowercase();
@@ -18,7 +20,10 @@ impl AmountFormat for Format4 {
             sign = -1.0;
         }
         // Remove "cr" or "dr"
-        let mut cleaned = Regex::new(r"(cr|dr)").unwrap().replace(&currency_str, "").to_string();
+        let mut cleaned = Regex::new(r"(cr|dr)")
+            .unwrap()
+            .replace(&currency_str, "")
+            .to_string();
         if cleaned.contains('-') {
             sign *= -1.0;
             cleaned = cleaned.replace('-', "");

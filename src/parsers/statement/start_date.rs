@@ -7,11 +7,7 @@ pub struct StartDateParser {
 
 impl StartDateParser {
     pub fn new(config: &StatementConfig) -> Self {
-        let primer_terms: Vec<&str> = config
-            .start_date_terms
-            .iter()
-            .map(|s| s.as_str())
-            .collect();
+        let primer_terms: Vec<&str> = config.start_date_terms.iter().map(|s| s.as_str()).collect();
         let date_formats: Vec<&str> = config
             .start_date_formats
             .iter()
@@ -29,12 +25,11 @@ impl StartDateParser {
 
     pub fn parse_items(&mut self, items: &[TextItem], data: &mut StatementData) -> usize {
         let consumed = self.parser.parse_items(items);
-        if consumed > 0 {
-            if let Some(value) = self.parser.value() {
-                if data.start_date().is_none() {
-                    data.set_start_date(value);
-                }
-            }
+        if consumed > 0
+            && let Some(value) = self.parser.value()
+            && data.start_date().is_none()
+        {
+            data.set_start_date(value);
         }
         consumed
     }

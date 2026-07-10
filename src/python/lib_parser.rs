@@ -15,6 +15,15 @@ pub struct LibParser {
     db: ConfigDB,
 }
 
+impl Default for LibParser {
+    fn default() -> Self {
+        Self {
+            typer: StatementTyper::new(),
+            db: ConfigDB::new(true, false),
+        }
+    }
+}
+
 impl LibParser {
     /// Get list of configs from provided keys
     fn get_configs_from_keys(&self, keys: &Vec<String>) -> Result<Vec<StatementConfig>, String> {
@@ -118,7 +127,7 @@ impl LibParser {
             })?;
 
         let statement_data_results = text_items_to_statement_datas(&text_items, &configs)
-            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e))?;
+            .map_err(pyo3::exceptions::PyRuntimeError::new_err)?;
 
         // Find the first error-free StatementData
         for data in statement_data_results {

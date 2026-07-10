@@ -106,10 +106,10 @@ impl TransactionAmountParser {
 
     /// Check if header is set
     pub fn is_header_set(&self) -> bool {
-      if self.has_inverted_column {
-          return self.header_primer.primed && self.invert_header_primer.primed;
-      }
-      self.header_primer.primed
+        if self.has_inverted_column {
+            return self.header_primer.primed && self.invert_header_primer.primed;
+        }
+        self.header_primer.primed
     }
 
     /// Get effective x_bounds

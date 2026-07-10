@@ -1,5 +1,5 @@
 use crate::configs::db::ConfigDB;
-use crate::python::exceptions::{ConfigLoadError, ConfigAccessError};
+use crate::python::exceptions::{ConfigAccessError, ConfigLoadError};
 use pyo3::prelude::*;
 
 #[pyclass]

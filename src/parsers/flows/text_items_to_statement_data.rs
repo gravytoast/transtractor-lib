@@ -10,7 +10,7 @@ use crate::structs::text_items::get_text_item_buffer;
 /// Converts a list of TextItems into structured StatementData
 pub fn text_items_to_statement_data(
     config: &StatementConfig,
-    text_items: &Vec<TextItem>,
+    text_items: &[TextItem],
 ) -> StatementData {
     let mut statement_data = StatementData::new();
 
@@ -40,7 +40,7 @@ pub fn text_items_to_statement_data(
     let mut i: usize = 0;
     while i < len {
         let buffer_size = max_lookahead.min(len - i);
-        let buffer = get_text_item_buffer(&text_items, i, buffer_size);
+        let buffer = get_text_item_buffer(text_items, i, buffer_size);
         let mut consumed = 0usize;
         // Try parsers in a stable order: account number -> start date -> opening balance -> closing balance
         if consumed == 0 {

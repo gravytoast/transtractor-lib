@@ -16,7 +16,11 @@ impl ParserPrimer {
     /// Create a new ParserPrimer with specified terms
     pub fn new(terms: &[&str]) -> Self {
         let terms_vec: Vec<String> = terms.iter().map(|t| t.to_string()).collect();
-        let max_lookahead = terms_vec.iter().map(|t| t.split(' ').count()).max().unwrap_or(0);
+        let max_lookahead = terms_vec
+            .iter()
+            .map(|t| t.split(' ').count())
+            .max()
+            .unwrap_or(0);
         ParserPrimer {
             primed: false,
             text_item: None,
@@ -64,7 +68,14 @@ mod tests {
     use crate::structs::TextItem;
 
     fn make_text_item(text: &str) -> TextItem {
-        TextItem { text: text.to_string(), x1: 0, y1: 0, x2: 0, y2: 0, page: 1 }
+        TextItem {
+            text: text.to_string(),
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 0,
+            page: 1,
+        }
     }
 
     #[test]

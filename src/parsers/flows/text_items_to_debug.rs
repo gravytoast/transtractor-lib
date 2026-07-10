@@ -1,7 +1,6 @@
 use crate::parsers::flows::text_items_to_statement_datas::text_items_to_statement_datas;
-use crate::structs::TextItem;
 use crate::structs::StatementConfig;
-
+use crate::structs::TextItem;
 
 /// Parse non-tokenised text items into debug information string,
 /// using provided statement configurations.
@@ -13,7 +12,7 @@ pub fn text_items_to_debug(
     let mut output = String::new();
     output.push_str("Debug output\n");
 
-    match text_items_to_statement_datas(&items, &configs) {
+    match text_items_to_statement_datas(items, configs) {
         Ok(statement_data_results) => {
             output.push_str(&format!(
                 "Found {} StatementData result(s)\n\n",
@@ -23,7 +22,7 @@ pub fn text_items_to_debug(
             for (i, data) in statement_data_results.iter().enumerate() {
                 output.push_str(&format!("=== StatementData Result {} ===\n", i + 1));
                 output.push_str(&data.to_string());
-                output.push_str("\n");
+                output.push('\n');
             }
         }
         Err(error) => {

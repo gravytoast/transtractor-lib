@@ -1,4 +1,8 @@
 pub mod format1;
+pub mod format10;
+pub mod format11;
+pub mod format12;
+pub mod format13;
 pub mod format2;
 pub mod format3;
 pub mod format4;
@@ -7,17 +11,13 @@ pub mod format6;
 pub mod format7;
 pub mod format8;
 pub mod format9;
-pub mod format10;
-pub mod format11;
-pub mod format12;
-pub mod format13;
 pub mod generate;
 
 use crate::formats::date::generate::{parse_day, parse_month, parse_year};
 use crate::formats::date::{
     format1::Format1, format2::Format2, format3::Format3, format4::Format4, format5::Format5,
-    format6::Format6, format7::Format7, format8::Format8, format9::Format9,
-    format10::Format10, format11::Format11, format12::Format12, format13::Format13,
+    format6::Format6, format7::Format7, format8::Format8, format9::Format9, format10::Format10,
+    format11::Format11, format12::Format12, format13::Format13,
 };
 
 /// Trait for date formats.
@@ -32,9 +32,8 @@ pub trait DateFormat {
 /// Get a list of valid formats.
 pub fn get_valid_formats() -> Vec<&'static str> {
     vec![
-        "format1", "format2", "format3", "format4", "format5",
-        "format6", "format7", "format8", "format9", "format10",
-        "format11", "format12", "format13",
+        "format1", "format2", "format3", "format4", "format5", "format6", "format7", "format8",
+        "format9", "format10", "format11", "format12", "format13",
     ]
 }
 
@@ -60,8 +59,8 @@ impl DateParts {
     /// If both are empty, panics.
     /// If self.year_str is not empty, uses it even if the input arg is not empty.
     pub fn to_utc_timestamp(&self, year_str: &str) -> Option<i64> {
-        let day = parse_day(&self.day_str)? as u32;
-        let month = parse_month(&self.month_str)? as u32;
+        let day = parse_day(&self.day_str)?;
+        let month = parse_month(&self.month_str)?;
 
         // Determine which year string to use
         let year_source = if !self.year_str.trim().is_empty() {
@@ -126,7 +125,7 @@ impl MultiDateFormatParser {
             .collect();
 
         // Sort by num_items descending
-        formats.sort_by(|a, b| b.1.cmp(&a.1));
+        formats.sort_by_key(|a| std::cmp::Reverse(a.1));
 
         // Instantiate parsers in sorted order
         let mut parsers: Vec<Box<dyn DateFormat>> = Vec::new();
@@ -239,8 +238,8 @@ mod tests {
     #[test]
     fn test_multi_date_format_parser() {
         let multi_fmt = MultiDateFormatParser::new(&[
-            "format1", "format2", "format3", "format4", "format5", "format6", "format7",
-            "format8", "format9", "format10", "format11", "format12", "format13",
+            "format1", "format2", "format3", "format4", "format5", "format6", "format7", "format8",
+            "format9", "format10", "format11", "format12", "format13",
         ]);
         // Should parse using format1
         assert!(multi_fmt.parse("24 mar", "2023").is_some());
@@ -269,7 +268,11 @@ mod tests {
         assert!(multi_fmt.parse("March 4", "2023").is_some());
         // Should parse using format11
         assert!(multi_fmt.parse("Mar 24, 2023-Apr 24, 2023", "").is_some());
-        assert!(multi_fmt.parse("March 1, 2020-March 31, 2020", "").is_some());
+        assert!(
+            multi_fmt
+                .parse("March 1, 2020-March 31, 2020", "")
+                .is_some()
+        );
         // Should parse using format12
         assert!(multi_fmt.parse("2023/03/24", "").is_some());
         assert!(multi_fmt.parse("2023/3/24", "").is_some());

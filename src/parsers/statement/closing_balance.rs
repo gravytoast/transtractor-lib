@@ -30,12 +30,11 @@ impl ClosingBalanceParser {
 
     pub fn parse_items(&mut self, items: &[TextItem], data: &mut StatementData) -> usize {
         let consumed = self.parser.parse_items(items);
-        if consumed > 0 {
-            if let Some(value) = self.parser.value() {
-                if data.closing_balance().is_none() {
-                    data.set_closing_balance(value);
-                }
-            }
+        if consumed > 0
+            && let Some(value) = self.parser.value()
+            && data.closing_balance().is_none()
+        {
+            data.set_closing_balance(value);
         }
         consumed
     }

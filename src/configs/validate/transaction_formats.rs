@@ -6,7 +6,10 @@ pub fn transaction_formats(formats: &Vec<Vec<String>>) -> Result<(), String> {
         }
         for token in fmt {
             if !allowed_tokens.iter().any(|a| a == token) {
-                return Err(format!("Invalid transaction_formats. Unknown token '{}'", token));
+                return Err(format!(
+                    "Invalid transaction_formats. Unknown token '{}'",
+                    token
+                ));
             }
         }
     }

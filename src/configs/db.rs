@@ -40,7 +40,8 @@ impl ConfigDB {
         let cfg = from_json_str(json_str)?;
         self.configs.insert(cfg.key.clone(), cfg.clone());
         if self.str_caching {
-            self.config_strs.insert(cfg.key.clone(), json_str.to_string());
+            self.config_strs
+                .insert(cfg.key.clone(), json_str.to_string());
         }
         Ok(())
     }
@@ -64,10 +65,10 @@ impl ConfigDB {
     /// Fetch a config by key.
     pub fn get_config(&self, key: &str) -> Result<StatementConfig, String> {
         // If caching enabled, try to get from memory first
-        if self.caching {
-            if let Some(cfg) = self.configs.get(key) {
-                return Ok(cfg.clone());
-            }
+        if self.caching
+            && let Some(cfg) = self.configs.get(key)
+        {
+            return Ok(cfg.clone());
         }
         // Else, try to load from file path
         if let Some(path) = self.config_paths.get(key) {
@@ -79,10 +80,10 @@ impl ConfigDB {
 
     pub fn get_config_json_str(&self, key: &str) -> Result<String, String> {
         // If str caching enabled, try to get from memory first
-        if self.str_caching {
-            if let Some(json_str) = self.config_strs.get(key) {
-                return Ok(json_str.clone());
-            }
+        if self.str_caching
+            && let Some(json_str) = self.config_strs.get(key)
+        {
+            return Ok(json_str.clone());
         }
         // Else, try to load from file path
         if let Some(path) = self.config_paths.get(key) {
@@ -114,10 +115,8 @@ impl ConfigDB {
 
     /// Check if a config with the given key is registered.
     pub fn has_config(&self, key: &str) -> bool {
-        if self.caching {
-            if self.configs.contains_key(key) {
-                return true;
-            }
+        if self.caching && self.configs.contains_key(key) {
+            return true;
         }
         self.config_paths.contains_key(key)
     }

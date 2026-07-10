@@ -29,12 +29,11 @@ impl AccountNumberParser {
 
     pub fn parse_items(&mut self, items: &[TextItem], data: &mut StatementData) -> usize {
         let consumed = self.parser.parse_items(items);
-        if consumed > 0 {
-            if let Some(value) = self.parser.value() {
-                if data.account_number().is_none() {
-                    data.set_account_number(value.to_string());
-                }
-            }
+        if consumed > 0
+            && data.account_number().is_none()
+            && let Some(value) = self.parser.value()
+        {
+            data.set_account_number(value.to_string());
         }
         consumed
     }
@@ -204,7 +203,7 @@ mod tests {
 
         parser.parse_items(&items, &mut data);
         parser.parse_items(&items[1..], &mut data);
-        
+
         // Should keep original value
         assert_eq!(data.account_number(), Some(&"9999 8888 7777".to_string()));
     }
@@ -243,7 +242,7 @@ mod tests {
     fn test_account_number_max_lookahead() {
         let config = default_config();
         let parser = AccountNumberParser::new(&config);
-        
+
         // Pattern "\b\d+\s+\d+\s+\d+\b" has 2 \s separators = 3 tokens
         assert_eq!(parser.get_max_lookahead(), 3);
     }
@@ -252,7 +251,7 @@ mod tests {
     fn test_account_number_single_token() {
         let mut config = default_config();
         config.account_number_patterns = vec![regex::Regex::new(r"\b\d{4}\b").unwrap()];
-        
+
         let mut data = StatementData::new();
         let mut parser = AccountNumberParser::new(&config);
 
@@ -263,7 +262,7 @@ mod tests {
 
         parser.parse_items(&items, &mut data);
         let consumed = parser.parse_items(&items[1..], &mut data);
-        
+
         assert_eq!(consumed, 1);
         assert_eq!(data.account_number(), Some(&"1234".to_string()));
     }
@@ -275,7 +274,7 @@ mod tests {
             regex::Regex::new(r"\b\d+-\d+-\d+\b").unwrap(),
             regex::Regex::new(r"\b\d+\s+\d+\s+\d+\b").unwrap(),
         ];
-        
+
         let mut data = StatementData::new();
         let mut parser = AccountNumberParser::new(&config);
 
@@ -287,7 +286,7 @@ mod tests {
 
         parser.parse_items(&items, &mut data);
         let consumed = parser.parse_items(&items[1..], &mut data);
-        
+
         assert_eq!(consumed, 1);
         assert_eq!(data.account_number(), Some(&"1234-5678-9012".to_string()));
     }
@@ -296,7 +295,7 @@ mod tests {
     fn test_account_number_no_x1_constraint() {
         let mut config = default_config();
         config.account_number_alignment = "".to_string();
-        
+
         let mut data = StatementData::new();
         let mut parser = AccountNumberParser::new(&config);
 
@@ -309,7 +308,7 @@ mod tests {
 
         parser.parse_items(&items, &mut data);
         let consumed = parser.parse_items(&items[1..], &mut data);
-        
+
         assert_eq!(consumed, 3);
         assert_eq!(data.account_number(), Some(&"1234 5678 9012".to_string()));
     }
@@ -318,7 +317,7 @@ mod tests {
     fn test_account_number_no_y1_constraint() {
         let mut config = default_config();
         config.account_number_alignment = "".to_string();
-        
+
         let mut data = StatementData::new();
         let mut parser = AccountNumberParser::new(&config);
 
@@ -331,7 +330,7 @@ mod tests {
 
         parser.parse_items(&items, &mut data);
         let consumed = parser.parse_items(&items[1..], &mut data);
-        
+
         assert_eq!(consumed, 3);
         assert_eq!(data.account_number(), Some(&"1234 5678 9012".to_string()));
     }

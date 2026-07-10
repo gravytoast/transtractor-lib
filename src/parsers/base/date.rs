@@ -86,7 +86,11 @@ mod tests {
     #[test]
     fn test_parse_multiple_items_format2() {
         let mut parser = DateParser::new(&["format2"]);
-        let items = vec![make_text_item("24"), make_text_item("march"), make_text_item("2020")];
+        let items = vec![
+            make_text_item("24"),
+            make_text_item("march"),
+            make_text_item("2020"),
+        ];
         let consumed = parser.parse_items(&items, "");
         assert_eq!(consumed, 3);
         assert!(parser.value.is_some());

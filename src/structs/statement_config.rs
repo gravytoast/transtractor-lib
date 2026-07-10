@@ -1,6 +1,5 @@
 use regex::Regex;
 
-
 /// Configuration for parsing a bank statement layout.
 #[derive(Debug, Clone)]
 pub struct StatementConfig {

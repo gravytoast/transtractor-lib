@@ -36,6 +36,12 @@ jobs:
       - name: Sync Python dev environment
         run: uv sync --locked --all-extras --group dev
 
+      - name: Check Rust formatting
+        run: cargo fmt --check
+
+      - name: Run Clippy linter
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
       - name: Build Rust
         run: cargo build --verbose
 

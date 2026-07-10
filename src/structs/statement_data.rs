@@ -1,5 +1,6 @@
-use crate ::structs::ProtoTransaction;
-use chrono::{DateTime, Utc, TimeZone, Datelike};
+use crate::structs::ProtoTransaction;
+use chrono::{DateTime, Datelike, TimeZone, Utc};
+use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct StatementData {
@@ -30,10 +31,18 @@ impl StatementData {
     pub fn account_number(&self) -> Option<&String> {
         self.account_number.as_ref()
     }
-    pub fn opening_balance(&self) -> Option<f64> { self.opening_balance }
-    pub fn closing_balance(&self) -> Option<f64> { self.closing_balance }
-    pub fn start_date(&self) -> Option<i64> { self.start_date }
-    pub fn start_date_year(&self) -> Option<i32> { self.start_date_year }
+    pub fn opening_balance(&self) -> Option<f64> {
+        self.opening_balance
+    }
+    pub fn closing_balance(&self) -> Option<f64> {
+        self.closing_balance
+    }
+    pub fn start_date(&self) -> Option<i64> {
+        self.start_date
+    }
+    pub fn start_date_year(&self) -> Option<i32> {
+        self.start_date_year
+    }
 
     // Setters for the fields
     pub fn set_key(&mut self, key: String) {
@@ -65,7 +74,13 @@ impl StatementData {
         self.errors.push(error);
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn print(&self) {
+        println!("{}", self);
+    }
+}
+
+impl fmt::Display for StatementData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut result = String::new();
         result.push_str("Statement Data:\n");
         match &self.key {
@@ -129,14 +144,12 @@ impl StatementData {
         } else {
             result.push_str("  Errors: None\n");
         }
-        result
-    }
-
-    pub fn print(&self) {
-        println!("{}", self.to_string());
+        write!(f, "{}", result)
     }
 }
 
 impl Default for StatementData {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
