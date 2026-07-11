@@ -17,35 +17,35 @@ library for extracting transaction data from PDF bank statements. Key features:
 
 
 ## Installation
-
 ### Install from PyPI
-
 Transtractor is available on PyPI and can be installed with pip:
 
-```bash
+```shell
 pip install transtractor
 ```
 
-**Requirements**: Python 3.9 or higher
+**Requirements**: Python 3.10 or higher
 
 ### Compile from source
-
 1. **Install Rust**: Download and install Rust from [rustup.rs](https://rustup.rs/)
 
-2. **Install Maturin**: Install the Python build tool for Rust extensions
-   ```bash
-   pip install maturin
+2. **Install uv**: Follow instructions from [Astral](https://docs.astral.sh/uv/getting-started/installation/)
+
+3. **Sync Python environment and compile**: Clone the repository and build
+   ```shell
+   git clone https://github.com/transtractor/transtractor.git
+   cd transtractor-lib
+   uv sync --locked --all-extras --group dev
+   uv run maturin develop --release
    ```
 
-3. **Build and install Transtractor**: Clone the repository and build
-   ```bash
-   git clone https://github.com/gravytoast/transtractor.git
-   cd transtractor-lib
-   maturin develop --release
+4. **Test the package**: Run Rust and Python unit tests
+   ```shell
+   cargo test
+   uv run pytest
    ```
 
 ### Basic usage
-
 1. **Import and initialise the parser**
    ```python
    from transtractor import Parser
