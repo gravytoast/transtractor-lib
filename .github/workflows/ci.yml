@@ -1,3 +1,7 @@
+# Runs Python and Rust tests on all platforms and Python versions. Also runs type 
+# checking and coverage reporting and shows the results in the workflow summary. Code 
+# coverage is uploaded to Codecov. Builds are triggered on push and pull requests 
+# targeting the main branch.
 name: CI
 
 on:
