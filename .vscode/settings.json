@@ -26,6 +26,7 @@
     "cSpell.language": "en-AU",
     "cSpell.words": [
         "addopts",
+        "analyzed",
         "cdylib",
         "chrono",
         "clippy",
@@ -38,6 +39,7 @@
         "isort",
         "lookaheads",
         "maturin",
+        "outputjson",
         "pdfplumber",
         "prototransaction",
         "pycache",

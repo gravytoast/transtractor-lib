@@ -39,7 +39,14 @@ dynamic = ["version"]
 dependencies = ["pdfplumber>=0.11.10,<0.12.0"]
 
 [dependency-groups]
-dev = ["defusedxml", "maturin>=1.14,<2.0", "pytest", "pytest-cov", "ruff"]
+dev = [
+    "defusedxml",
+    "maturin>=1.14,<2.0",
+    "pyright",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
 
 [project.urls]
 Homepage = "https://github.com/transtractor/transtractor-lib"
@@ -53,7 +60,7 @@ python-source = "python"
 include = ["python/transtractor/configs/**/*"]
 
 [tool.pyright]
-include = ["src"]
+include = ["python"]
 exclude = ["**/.venv", "**/__pycache__", "**/node_modules", "**/.*"]
 typeCheckingMode = "basic"
 pythonVersion = "3.14"
