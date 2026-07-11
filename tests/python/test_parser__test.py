@@ -78,7 +78,7 @@ def test_test_generates_correct_csv_with_valid_config():
         )
 
         for i, (generated_row, expected_row) in enumerate(
-            zip(generated_rows, expected_rows)
+            zip(generated_rows, expected_rows, strict=True)
         ):
             assert generated_row == expected_row, (
                 f"CSV content mismatch at row {i + 1}:\n"
@@ -121,7 +121,7 @@ def test_test_generates_correct_csv_with_misconfigured_config():
         )
 
         for i, (generated_row, expected_row) in enumerate(
-            zip(generated_rows, expected_rows)
+            zip(generated_rows, expected_rows, strict=True)
         ):
             assert generated_row == expected_row, (
                 f"CSV content mismatch at row {i + 1}:\n"
@@ -162,7 +162,7 @@ def test_test_generates_correct_csv_without_config():
         )
 
         for i, (generated_row, expected_row) in enumerate(
-            zip(generated_rows, expected_rows)
+            zip(generated_rows, expected_rows, strict=True)
         ):
             assert generated_row == expected_row, (
                 f"CSV content mismatch at row {i + 1}:\n"

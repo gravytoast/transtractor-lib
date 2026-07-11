@@ -2,7 +2,6 @@
 subsequent processing in Python."""
 
 import csv
-from typing import Union
 
 from .transaction import Transaction
 
@@ -142,7 +141,7 @@ class StatementData:
     def to_csv(
         self,
         file_path: str,
-        fields: Union[tuple[str, ...], list[str]] = (
+        fields: tuple[str, ...] | list[str] = (
             "date",
             "description",
             "amount",
@@ -191,7 +190,7 @@ class StatementData:
 
     def to_pandas_dict(
         self,
-        fields: Union[tuple[str, ...], list[str]] = (
+        fields: tuple[str, ...] | list[str] = (
             "date",
             "description",
             "amount",

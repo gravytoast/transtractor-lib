@@ -45,7 +45,7 @@ def test_parse_generates_correct_csv():
         )
 
         for i, (generated_line, expected_line) in enumerate(
-            zip(generated_lines, expected_lines)
+            zip(generated_lines, expected_lines, strict=True)
         ):
             assert generated_line == expected_line, (
                 f"CSV content mismatch at line {i + 1}:\n"

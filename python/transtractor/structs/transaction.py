@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from datetime import date as Date
 from datetime import datetime
-from typing import Union
 
 
 @dataclass
@@ -18,7 +17,7 @@ class Transaction:
 
     def __init__(
         self,
-        date: Union[Date, int],
+        date: Date | int,
         date_index: int,
         description: str,
         amount: float,
