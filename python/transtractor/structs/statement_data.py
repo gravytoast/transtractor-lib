@@ -63,17 +63,17 @@ class StatementData:
         )
 
     @property
-    def key(self) -> str:
+    def key(self) -> str | None:
         """Get the statement key."""
         return self._key
 
     @property
-    def filename(self) -> str:
+    def filename(self) -> str | None:
         """Get the filename."""
         return self._filename
 
     @property
-    def account_number(self) -> str:
+    def account_number(self) -> str | None:
         """Get the account number."""
         return self._account_number
 

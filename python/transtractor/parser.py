@@ -1,5 +1,7 @@
 """Python wrapper for the Transtractor PDF bank statement parser."""
 
+from typing import cast
+
 from .exceptions import StatementNotSupported
 from .structs.statement_data import StatementData
 from .transtractor import LibParser
@@ -60,8 +62,11 @@ class Parser:
         """
         py_text_items = pdf_to_text_items(pdf_file_path)
         applicable_keys = self._identify(py_text_items)
-        sd: StatementData = self._inner.py_text_items_to_py_statement_data(
-            py_text_items, applicable_keys
+        sd: StatementData = cast(
+            StatementData,
+            self._inner.py_text_items_to_py_statement_data(
+                py_text_items, applicable_keys
+            ),
         )
         sd.set_filename(pdf_file_path)
         return sd

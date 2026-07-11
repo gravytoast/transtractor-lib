@@ -4,7 +4,7 @@ import csv
 import logging
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from ..exceptions import StatementNotSupported
 from ..structs.statement_data import StatementData
@@ -112,8 +112,11 @@ class TestData:
         # Try to parse the statement
         start_parse = time.time()
         try:
-            sd: StatementData = self.parser._inner.py_text_items_to_py_statement_data(
-                py_text_items, keys
+            sd: StatementData = cast(
+                StatementData,
+                self.parser._inner.py_text_items_to_py_statement_data(
+                    py_text_items, keys
+                ),
             )
             self.num_transactions = len(sd.transactions)
             self.status = "PASS"
