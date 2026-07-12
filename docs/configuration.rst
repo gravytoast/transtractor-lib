@@ -7,44 +7,27 @@ for unsupported banks or account types.
 
 TL;DR
 --------------
-Use an IDE with an AI agent (e.g., GitHub Copilot) to do this for you.
-First clone the repository and set up the development environment 
-so that your agent has enough context to work with:
-
-.. code-block:: shell
-
-    # Install Rust
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-    # Clone the repository and set up the Python dev environment
-    git clone https://github.com/transtractor/transtractor-lib.git
-    cd transtractor-lib
-    python -m venv venv
-    source venv/bin/activate
-    pip install pytest maturin
-
-    # Compile the Rust code and install into the Python environment
-    maturin develop --release
-
-Now create a "pdfs" folder in the root of the repository and add
-your sample bank statement PDF files into it. 
+Use an IDE with an AI agent (e.g., GitHub Copilot) to do this for you. First clone the 
+repository and set up the  `development environment from source <https://github.com/transtractor/transtractor-lib#compile-from-source>`_
+so that your agent has enough context to work with. Then create a "pdf" folder in the 
+root of the repository and add your sample bank statement PDF files into it. 
 
 .. warning::
-   
-   You will be uploading sensitive financial data to 
-   a third-party AI service. Make sure you are comfortable with this
-   before proceeding.
+
+    You will be uploading sensitive financial data to 
+    a third-party AI service. Make sure you are comfortable with this
+    before proceeding.
 
 Then prompt your agent with something like:
 
 *"Create a Transtractor configuration file in JSON format to parse 
-the bank statement PDF file 'pdfs/my_bank_statement.pdf'. Use the
+the bank statement PDF file 'pdf/my_bank_statement.pdf'. Use the
 instructions in 'docs/configuration.rst' as a guide. Save the 
 configuration file in the 'python/transtractor/configs' folder.
 Test if the configuration works by parsing the PDF file
 in Python. Debug as appropriate, but do not modify any of 
 the Rust or Python source code. If there are multiple 
-PDFs in the "pdfs" folder, run the Parser.test() method to 
+PDFs in the "pdf" folder, run the Parser.test() method to 
 confirm the configuration works across all files. Finally,
 make sure the package still passes
 cargo test and pytest."*
@@ -173,7 +156,7 @@ Format Parameters
 The Transtractor uses pattern recognition and additional logic to parse amounts and dates
 from text into a standardised format. Applicable formats are specified in the configuration
 file (e.g., *_formats* fields). The formats currently supported are listed below. Contact 
-the project maintainers if you need additional formats, or sumit a pull request with your
+the project maintainers if you need additional formats, or submit a pull request with your
 contributions (see below).
 
 
@@ -184,21 +167,21 @@ formats are supported:
 
 
 .. list-table::
-   :header-rows: 1
-   :widths: 20 80
+    :header-rows: 1
+    :widths: 20 80
 
-   * - Label
-     - Examples
-   * - ``format1``
-     - "1,234.56" → 1234.56, "-1,234.56" → -1234.56, "1,234.56-" → -1234.56
-   * - ``format2``
-     - "-$1,234.56" → -1234.56, "$1,234.56" → 1234.56, "$1,234.56-" → -1234.56
-   * - ``format3``
-     - "$1,234.56 CR" → 1234.56, "-$1,234.56 CR" → -1234.56, "$1,234.56 DR" → -1234.56
-   * - ``format4``
-     - "1,234.56 CR" → 1234.56, "-1,234.56 CR" → -1234.56, "1,234.56 DR" → -1234.56
-   * - ``format5``
-     - "nil" → 0.00, "Nil" → 0.00
+    * - Label
+      - Examples
+    * - ``format1``
+      - "1,234.56" → 1234.56, "-1,234.56" → -1234.56, "1,234.56-" → -1234.56
+    * - ``format2``
+      - "-$1,234.56" → -1234.56, "$1,234.56" → 1234.56, "$1,234.56-" → -1234.56
+    * - ``format3``
+      - "$1,234.56 CR" → 1234.56, "-$1,234.56 CR" → -1234.56, "$1,234.56 DR" → -1234.56
+    * - ``format4``
+      - "1,234.56 CR" → 1234.56, "-1,234.56 CR" → -1234.56, "1,234.56 DR" → -1234.56
+    * - ``format5``
+      - "nil" → 0.00, "Nil" → 0.00
 
 Formats are sensitive to spacing and comma separation, but generally not case sensitive.
 
@@ -209,37 +192,37 @@ Date formats convert text into the standard ISO format of YYYY-MM-DD. The follow
 formats are supported:
 
 .. list-table::
-   :header-rows: 1
-   :widths: 20 80
+    :header-rows: 1
+    :widths: 20 80
 
-   * - Label
-     - Examples
-   * - ``format1``
-     - "24 Mar" → XXXX-03-24, "24 mar" → XXXX-03-24, "24 March" → XXXX-03-24
-   * - ``format2``
-     - "24 march 2025" → 2025-03-24, "24 Mar 2025" → 2025-03-24
-   * - ``format3``
-     - "mar 24, 2025" → 2025-03-24, "March 24, 2025" → 2025-03-24
-   * - ``format4``
-     - "24/3/2020" → 2020-03-24, "24/3/2020" → 2020-03-24
-   * - ``format5``
-     - "24/3/25" → 2025-03-24, "24/03/25" → 2025-03-25
-   * - ``format6``
-     - "3/24" → XXXX-03-24, "03/24" → XXXX-03-24
-   * - ``format7``
-     - "24-03-2023" → 2023-03-24, "24-3-2023" → 2023-03-24, "24-03-23" → 2023-03-24, "24-3-23" → 2023-03-24
-   * - ``format8``
-     - "03-24-2023" → 2023-03-24, "3-24-2023" → 2023-03-24, "03-24-23" → 2023-03-24, "3-24-23" → 2023-03-24
-   * - ``format9``
-     - "03/24/2023" → 2023-03-24, "3/24/2023" → 2023-03-24, "03/24/23" → 2023-03-24, "3/24/23" → 2023-03-24
-   * - ``format10``
-     - "Mar 24" → XXXX-03-24, "March 24" → XXXX-03-24, "March 4" → XXXX-03-04
-   * - ``format11``
-     - "Mar 24, 2023-Apr 24, 2023" → 2023-03-24, "March 1, 2020-March 31, 2020" → 2020-03-01
-   * - ``format12``
-     - "2023/03/24" → 2023-03-24, "2023/3/24" → 2023-03-24
-   * - ``format13``
-     - "2023-03-24" → 2023-03-24, "2023-3-24" → 2023-03-24
+    * - Label
+      - Examples
+    * - ``format1``
+      - "24 Mar" → XXXX-03-24, "24 mar" → XXXX-03-24, "24 March" → XXXX-03-24
+    * - ``format2``
+      - "24 march 2025" → 2025-03-24, "24 Mar 2025" → 2025-03-24
+    * - ``format3``
+      - "mar 24, 2025" → 2025-03-24, "March 24, 2025" → 2025-03-24
+    * - ``format4``
+      - "24/3/2020" → 2020-03-24, "24/3/2020" → 2020-03-24
+    * - ``format5``
+      - "24/3/25" → 2025-03-24, "24/03/25" → 2025-03-25
+    * - ``format6``
+      - "3/24" → XXXX-03-24, "03/24" → XXXX-03-24
+    * - ``format7``
+      - "24-03-2023" → 2023-03-24, "24-3-2023" → 2023-03-24, "24-03-23" → 2023-03-24, "24-3-23" → 2023-03-24
+    * - ``format8``
+      - "03-24-2023" → 2023-03-24, "3-24-2023" → 2023-03-24, "03-24-23" → 2023-03-24, "3-24-23" → 2023-03-24
+    * - ``format9``
+      - "03/24/2023" → 2023-03-24, "3/24/2023" → 2023-03-24, "03/24/23" → 2023-03-24, "3/24/23" → 2023-03-24
+    * - ``format10``
+      - "Mar 24" → XXXX-03-24, "March 24" → XXXX-03-24, "March 4" → XXXX-03-04
+    * - ``format11``
+      - "Mar 24, 2023-Apr 24, 2023" → 2023-03-24, "March 1, 2020-March 31, 2020" → 2020-03-01
+    * - ``format12``
+      - "2023/03/24" → 2023-03-24, "2023/3/24" → 2023-03-24
+    * - ``format13``
+      - "2023-03-24" → 2023-03-24, "2023-3-24" → 2023-03-24
 
 Formats with a "XXXX" year will infer the year based on the statement start date.
 
@@ -316,7 +299,7 @@ use the same statement format.
 List of two float values *y_bin* and *x_gap* used to adjust the text ordering when extracting
 text from the PDF file. The *y_bin* value (typically half the character height)
 groups text items with *y1* positions within *y_bin* of each other into the same line, then 
-orders them by their *x1* positions. Items with *x2* and *x1* postions within *x_gap* will 
+orders them by their *x1* positions. Items with *x2* and *x1* positions within *x_gap* will 
 be grouped together. *x_gap* is a multiplier of the average character width based on the 
 preceding text item.
 
@@ -608,23 +591,23 @@ Transtractor parser and parsing a sample statement:
 
 .. code-block:: python
 
-   from transtractor import Parser
+    from transtractor import Parser
 
-   # Initialise parser with your configuration file
-   parser = Parser()
-   parser.load('your_config_file.json')
-   parser.parse('sample_statement.pdf').to_csv('sample_statement.csv')
+    # Initialise parser with your configuration file
+    parser = Parser()
+    parser.load('your_config_file.json')
+    parser.parse('sample_statement.pdf').to_csv('sample_statement.csv')
 
 Even better, try it out against all your bank statements to ensure it works across
 multiple years and is tolerant of edge cases:
 
 .. code-block:: python
 
-   from transtractor import Parser
+    from transtractor import Parser
 
-   parser = Parser()
-   parser.load('your_config_file.json')
-   parser.test('directory_containing_statements', 'test_results.csv')
+    parser = Parser()
+    parser.load('your_config_file.json')
+    parser.test('directory_containing_statements', 'test_results.csv')
 
 This will recursively parse all PDF statements in the directory and sub-directories, and
 output a CSV file with the results. Review the results to ensure all statements were parsed
