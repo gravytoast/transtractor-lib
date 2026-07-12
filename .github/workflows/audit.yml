@@ -1,0 +1,40 @@
+# Run a scan of all Python and Rust dependencies for known vulnerabilities and licenses.
+# Workflow is scheduled to run weekly, but can also be triggered manually via the 
+# "Run workflow" button in the Actions tab.
+name: Dependency Audit
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: 3.14
+
+      - name: Sync Python dev environment
+        run: uv sync --locked --all-extras --group dev
+
+      - name: Scan Rust binaries for vulnerabilities
+        run: cargo audit --json > cargo-audit.json || true
+
+      - name: Render Rust audit findings
+        run: python scripts/render-cargo-audit.py cargo-audit.json cargo-audit.md
+
+      - name: Append findings to workflow summary
+        run: cat cargo-audit.md >> "$GITHUB_STEP_SUMMARY"
