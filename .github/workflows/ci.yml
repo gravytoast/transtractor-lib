@@ -61,6 +61,9 @@ jobs:
       - name: Run pytest
         run: uv run pytest
 
+      - name: Build Sphinx documentation
+        run: cd docs && uv run make html
+
   typecheck:
     runs-on: ubuntu-latest
 
