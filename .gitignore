@@ -209,6 +209,7 @@ __marimo__/
 
 # User PDF files for testing
 pdf/
+pdfs/
 
 # Coverage reports
 cov-python.xml
