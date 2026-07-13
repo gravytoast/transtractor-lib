@@ -20,6 +20,8 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: cargo-audit
 
       - name: Cache Rust build artifacts
         uses: Swatinem/rust-cache@v2
