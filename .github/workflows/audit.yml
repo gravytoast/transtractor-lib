@@ -1,11 +1,14 @@
 # Run a scan of all Python and Rust dependencies for known vulnerabilities and licenses.
-# Workflow is scheduled to run weekly, but can also be triggered manually via the 
-# "Run workflow" button in the Actions tab.
+# Workflow is triggered manually via the "Run workflow" button in the Actions tab or 
+# automatically on pushes and pull requests targeting the main branch.
+
 name: Dependency Audit
 
 on:
-  schedule:
-    - cron: "0 6 * * 1" # Mondays at 06:00 UTC
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
