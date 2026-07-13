@@ -50,9 +50,6 @@ jobs:
       - name: Run Rust tests
         run: cargo test --verbose
 
-      - name: Build Python package
-        run: uv run maturin develop --release
-
       - name: Run ruff check
         run: uv run ruff check python tests
 
@@ -122,9 +119,6 @@ jobs:
 
       - name: Sync Python dev environment
         run: uv sync --locked --all-extras --group dev
-
-      - name: Build Python package
-        run: uv run maturin develop --release
 
       - name: Generate Rust Coverage (Cobertura XML)
         run: cargo llvm-cov --all-features --cobertura --output-path cov-rust.xml
