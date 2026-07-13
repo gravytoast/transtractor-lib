@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from collections import Counter
 from pathlib import Path
 
 
@@ -36,12 +35,6 @@ def render(data: dict | None) -> tuple[str, int]:
     if not vulnerabilities:
         lines.append("✅ No known vulnerabilities found.")
         return "\n".join(lines), 0
-
-    # Count vulnerabilities by severity
-    by_severity = Counter(
-        v.get("advisory", {}).get("severity", "unknown").lower()
-        for v in vulnerabilities
-    )
 
     total = len(vulnerabilities)
     plural = "s" if total != 1 else ""
