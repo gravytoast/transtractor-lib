@@ -37,7 +37,7 @@ jobs:
         run: cargo audit --json > cargo-audit.json || true
 
       - name: Render Rust audit findings
-        run: python scripts/render-cargo-audit.py cargo-audit.json cargo-audit.md
+        run: uv run python scripts/render-cargo-audit.py cargo-audit.json cargo-audit.md
 
       - name: Append findings to workflow summary
         run: cat cargo-audit.md >> "$GITHUB_STEP_SUMMARY"
