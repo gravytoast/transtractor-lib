@@ -5,9 +5,9 @@ The Transtractor is implemented in **Python** and **Rust**. Rust is used not pri
 Transtractor first extracts PDF text into **tokenised word units** using a high‑level language like Python. These tokens are then passed to the **Rust processing engine**, which uses key terms, token order, and token coordinates to reconstruct transaction records and metadata such as account numbers and opening/closing balances. The Rust engine performs extensive validation before returning structured results to the high‑level language for further analysis.
 
 ### Step 1: Extract PDF Content
-PDF text extraction is performed using the `pdfplumber` Python package, which reliably handles many fonts, whitespace, and bounding‑box coordinates. At present, no Rust‑based equivalent offers comparable accuracy. If one emerges, replacing this component would help reduce variability introduced by different PDF parsers.
+PDF text extraction is performed using the *pdfplumber* Python package, which reliably handles many fonts, whitespace, and bounding‑box coordinates. At present, no Rust‑based equivalent offers comparable accuracy. If one emerges, replacing this component would help reduce variability introduced by different PDF parsers.
 
-All Python‑side parsing is encapsulated in the `Parser` class. When instantiated, it automatically loads configuration data from the JSON files stored as JSON under `python/transtractor/configs/` and its subdirectories. A single `Parser` instance can process multiple statements, so configuration files only need to be loaded once. 
+All Python‑side parsing is encapsulated in the *Parser* class. When instantiated, it automatically loads configuration data from the JSON files stored as JSON under *python/transtractor/configs/* and its subdirectories. A single `Parser` instance can process multiple statements, so configuration files only need to be loaded once. 
 
 The first stage extracts all PDF text into **single‑word tokens**, split by whitespace. The `pdf_to_text_items` function acts as the **PDF parsing interface**, producing token structures compatible with `py_text_items_to_rust_text_items`, which serves as the **Python-to-Rust input interface**.
 
