@@ -24,8 +24,6 @@ Transtractor is available on PyPI and can be installed with pip:
 pip install transtractor
 ```
 
-**Requirements**: Python 3.10 or higher
-
 ### Compile from Source
 1. **Install Rust**: Download and install Rust from [rustup.rs](https://rustup.rs/)
 
