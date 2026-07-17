@@ -1,2 +1,0 @@
-# Install the docs extra from pyproject.toml
--e .[docs]
