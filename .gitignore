@@ -223,3 +223,6 @@ cargo-audit.json
 cargo-audit.md
 cargo-deny.json
 cargo-deny.md
+pip-audit.json
+pip-audit.md
+requirements-audit.txt

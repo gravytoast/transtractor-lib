@@ -59,6 +59,31 @@ jobs:
       - name: Append license findings to workflow summary
         run: cat cargo-deny.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Export Python runtime dependencies
+        run: |
+          uv export
+            --format requirements-txt
+            --no-dev
+            --no-emit-project
+            --all-extras
+            -o requirements-audit.txt
+
+      - name: Scan Python dependencies for vulnerabilities
+        run: |
+          uv run pip-audit
+            -r requirements-audit.txt
+            --require-hashes
+            --disable-pip
+            --format=json
+            -o pip-audit.json || true
+
+      - name: Render Python audit findings
+        id: render-pip-audit
+        run: uv run python scripts/render-pip-audit.py pip-audit.json pip-audit.md
+
+      - name: Append Python findings to workflow summary
+        run: cat pip-audit.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload audit artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -69,9 +94,14 @@ jobs:
             cargo-audit.md
             cargo-deny.json
             cargo-deny.md
+            pip-audit.json
+            pip-audit.md
           if-no-files-found: warn
       
       - name: Fail workflow if vulnerabilities found
         if: always()
-        run: bash scripts/handle-audit-findings.sh \
-          "${{ steps.render-cargo-audit.outputs.has_findings }}"
+        run: |
+          bash scripts/handle-audit-findings.sh
+            "${{ steps.render-cargo-audit.outputs.has_findings }}"
+            "${{ steps.render-cargo-deny.outputs.has_findings }}"
+            "${{ steps.render-pip-audit.outputs.has_findings }}"
