@@ -42,6 +42,7 @@ dependencies = ["pdfplumber>=0.11.10,<0.12.0"]
 dev = [
     "defusedxml",
     "maturin>=1.9,<2.0",
+    "pip-audit",
     "pyright",
     "pytest",
     "pytest-cov",
