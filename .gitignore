@@ -221,3 +221,5 @@ htmlcov-python/
 # Audit reports
 cargo-audit.json
 cargo-audit.md
+cargo-deny.json
+cargo-deny.md

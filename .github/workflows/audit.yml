@@ -49,6 +49,16 @@ jobs:
       - name: Append findings to workflow summary
         run: cat cargo-audit.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Scan Rust binaries for licenses
+        run: cargo deny --format json check licenses 2> cargo-deny.json || true
+
+      - name: Render Rust license findings
+        id: render-cargo-deny
+        run: uv run python scripts/render-cargo-deny.py cargo-deny.json cargo-deny.md
+
+      - name: Append license findings to workflow summary
+        run: cat cargo-deny.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload audit artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,6 +67,8 @@ jobs:
           path: |
             cargo-audit.json
             cargo-audit.md
+            cargo-deny.json
+            cargo-deny.md
           if-no-files-found: warn
       
       - name: Fail workflow if vulnerabilities found
