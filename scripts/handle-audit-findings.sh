@@ -17,6 +17,9 @@ fi
 has_findings=false
 for arg in "$@"; do
     arg="${arg//[[:space:]]/}"
+    if [[ -z "$arg" ]]; then
+        continue
+    fi
     if [[ "$arg" != "true" && "$arg" != "false" ]]; then
         echo "Error: Invalid argument '$arg'. Expected 'true' or 'false'."
         exit 1
