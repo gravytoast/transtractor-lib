@@ -60,7 +60,7 @@ class TestData:
     def get_all(self) -> list[str]:
         """Get all data fields as strings for writing CSV file."""
         return [
-            self.pdf_file_path,
+            Path(self.pdf_file_path).as_posix(),
             str(self.num_pages),
             str(self.num_transactions),
             self.config_keys,
@@ -78,7 +78,7 @@ class TestData:
             self.status,
             str(self.num_transactions),
             str(self.total_time),
-            self.pdf_file_path,
+            self._normalized_pdf_file_path(),
         ]
 
     def run(self) -> None:
