@@ -135,20 +135,20 @@ jobs:
 
       - name: Export Python runtime dependencies
         run: |
-          uv export
-            --format requirements-txt
-            --no-dev
-            --no-emit-project
-            --all-extras
+          uv export \
+            --format requirements-txt \
+            --no-dev \
+            --no-emit-project \
+            --all-extras \
             -o requirements-audit.txt
 
       - name: Scan Python dependencies for vulnerabilities
         run: |
-          uv run pip-audit
-            -r requirements-audit.txt
-            --require-hashes
-            --disable-pip
-            --format=json
+          uv run pip-audit \
+            -r requirements-audit.txt \
+            --require-hashes \
+            --disable-pip \
+            --format=json \
             -o pip-audit.json || true
 
       - name: Render Python audit findings
