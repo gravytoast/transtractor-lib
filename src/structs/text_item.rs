@@ -18,11 +18,20 @@ pub struct TextItem {
 impl TextItem {
     /// TextItem constructor
     pub fn new(text: String, x1: i32, y1: i32, x2: i32, y2: i32, page: i32) -> Self {
-        TextItem { text, x1, y1, x2, y2, page }
+        TextItem {
+            text,
+            x1,
+            y1,
+            x2,
+            y2,
+            page,
+        }
     }
+}
 
+impl Default for TextItem {
     /// Returns a default TextItem with empty text and zeroed coordinates/page.
-    pub fn default() -> Self {
+    fn default() -> Self {
         TextItem {
             text: String::new(),
             x1: 0,
@@ -32,20 +41,22 @@ impl TextItem {
             page: 0,
         }
     }
+}
 
+impl TextItem {
     /// Check if object has the same x, y, x2, y2 and page properties
     pub fn has_same_props(&self, other: &TextItem) -> bool {
-        self.x1 == other.x1 &&
-        self.y1 == other.y1 &&
-        self.x2 == other.x2 &&
-        self.y2 == other.y2 &&
-        self.page == other.page
+        self.x1 == other.x1
+            && self.y1 == other.y1
+            && self.x2 == other.x2
+            && self.y2 == other.y2
+            && self.page == other.page
     }
 
     /// Merge the text of this TextItem with another TextItem
     pub fn merge(&mut self, other: &TextItem) {
         self.text = format!("{} {}", self.text, other.text);
-        // take the smallest x1 and y1 from self and other 
+        // take the smallest x1 and y1 from self and other
         self.x1 = self.x1.min(other.x1);
         self.x2 = self.x2.max(other.x2);
 
@@ -71,7 +82,11 @@ impl TextItem {
         }
         let first = &items[0];
         let last = &items[items.len() - 1];
-        let merged_text = items.iter().map(|it| it.text.clone()).collect::<Vec<_>>().join(" ");
+        let merged_text = items
+            .iter()
+            .map(|it| it.text.clone())
+            .collect::<Vec<_>>()
+            .join(" ");
         Some(TextItem {
             text: merged_text,
             x1: first.x1,
@@ -85,19 +100,10 @@ impl TextItem {
     /// Return a string of format ["text",x1,x2,y1,y2] with raw integer coordinates.
     pub fn to_layout_block(&self) -> String {
         // Keeping page excluded from list for backward compatibility; add if needed.
-        format!("[\"{}\",{},{},{},{}]", self.text, self.x1, self.x2, self.y1, self.y2)
-    }
-
-    /// Clone a new TextItem from self
-    pub fn clone(&self) -> TextItem {
-        TextItem {
-            text: self.text.clone(),
-            x1: self.x1,
-            y1: self.y1,
-            x2: self.x2,
-            y2: self.y2,
-            page: self.page,
-        }
+        format!(
+            "[\"{}\",{},{},{},{}]",
+            self.text, self.x1, self.x2, self.y1, self.y2
+        )
     }
 
     /// Get x1 coordinate

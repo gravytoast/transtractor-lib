@@ -1,0 +1,161 @@
+# Runs Python and Rust tests on all platforms and Python versions. Also runs type 
+# checking and coverage reporting and shows the results in the workflow summary. Code 
+# coverage is uploaded to Codecov. Builds are triggered on push and pull requests 
+# targeting the main branch.
+
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Sync Python dev environment
+        run: uv sync --locked --all-groups
+
+      - name: Check Rust formatting
+        run: cargo fmt --check
+
+      - name: Run Clippy linter
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run Rust tests
+        run: cargo test --verbose
+
+      - name: Run ruff check
+        run: uv run ruff check python tests
+
+      - name: Run ruff format check
+        run: uv run ruff format --check python tests
+
+      - name: Run pytest
+        run: uv run pytest
+
+      - name: Build Sphinx documentation
+        run: cd docs && uv run make html
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: 3.14
+
+      - name: Sync Python dev environment
+        run: uv sync --locked --group dev
+
+      - name: Run pyright
+        run: uv run pyright --outputjson > pyright.json || true
+
+      - name: Render type-check findings
+        run: uv run python scripts/render-pyright.py pyright.json pyright-summary.md
+
+      - name: Append findings to workflow summary
+        run: cat pyright-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache Rust Build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: .
+
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: 3.14
+
+      - name: Sync Python dev environment
+        run: uv sync --locked --group dev
+
+      - name: Generate Rust Coverage (Cobertura XML)
+        run: cargo llvm-cov --all-features --cobertura --output-path cov-rust.xml
+
+      - name: Generate Python Coverage (pytest, Cobertura XML)
+        run: uv run pytest
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./cov-rust.xml,./cov-python.xml
+          flags: rust,python
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Generate Detailed Rust Coverage Report
+        run: uv run python scripts/render-coverage.py cov-rust.xml cov-rust.md Rust
+        continue-on-error: true
+
+      - name: Write Rust Coverage to Job Summary
+        run: cat cov-rust.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate Detailed Python Coverage Report
+        run: uv run python scripts/render-coverage.py cov-python.xml cov-python.md Python
+        continue-on-error: true
+
+      - name: Write Python Coverage to Job Summary
+        run: cat cov-python.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-results
+          path: |
+            cov-rust.xml
+            cov-rust.md
+            cov-python.xml
+            cov-python.md
+          if-no-files-found: warn

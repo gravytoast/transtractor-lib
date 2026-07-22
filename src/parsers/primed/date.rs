@@ -1,6 +1,6 @@
-use crate::structs::TextItem;
 use crate::parsers::base::DateParser;
 use crate::parsers::base::ParserPrimer;
+use crate::structs::TextItem;
 
 pub struct PrimedDateParser {
     primer_parser: ParserPrimer,
@@ -55,7 +55,7 @@ impl PrimedDateParser {
             "y1" => (date_item.y1 - primer_item.y1).abs() <= self.alignment_tol,
             "y2" => (date_item.y2 - primer_item.y2).abs() <= self.alignment_tol,
             "" => true, // No alignment check
-            _ => true, // No alignment check
+            _ => true,  // No alignment check
         };
         let page_ok = date_item.page == primer_item.page;
 
@@ -81,7 +81,8 @@ impl PrimedDateParser {
 
     /// Get the highest lookahead between primer and date parsers
     pub fn get_max_lookahead(&self) -> usize {
-        self.primer_parser.max_lookahead
+        self.primer_parser
+            .max_lookahead
             .max(self.date_parser.max_lookahead)
     }
 }
@@ -123,7 +124,7 @@ mod tests {
 
     #[test]
     fn test_primer_x1_fail() {
-    let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "x1", 1);
+        let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "x1", 1);
         let items = vec![
             make_text_item("DATE", 100, 200, 1),
             make_text_item("24 march 2020", 105, 200, 1),
@@ -136,7 +137,7 @@ mod tests {
 
     #[test]
     fn test_primer_y1_fail() {
-    let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "y1", 1);
+        let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "y1", 1);
         let items = vec![
             make_text_item("DATE", 100, 200, 1),
             make_text_item("24 march 2020", 100, 205, 1),
@@ -149,7 +150,7 @@ mod tests {
 
     #[test]
     fn test_primer_page_fail() {
-    let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "", 0);
+        let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "", 0);
         let items = vec![
             make_text_item("DATE", 100, 200, 1),
             make_text_item("24 march 2020", 100, 200, 2),
@@ -162,7 +163,7 @@ mod tests {
 
     #[test]
     fn test_no_items() {
-    let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "x1", 5);
+        let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "x1", 5);
         let items: Vec<TextItem> = vec![];
         let consumed = parser.parse_items(&items);
         assert_eq!(consumed, 0);
@@ -172,7 +173,7 @@ mod tests {
 
     #[test]
     fn test_date_already_set() {
-    let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "x1", 5);
+        let mut parser = PrimedDateParser::new(&["DATE"], &["format2"], "x1", 5);
         let items = vec![
             make_text_item("DATE", 100, 200, 1),
             make_text_item("24 march 2020", 100, 200, 1),

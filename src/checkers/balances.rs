@@ -1,17 +1,17 @@
 use crate::structs::StatementData;
 
 /// Check if the statement balances are consistent by calculating running balances.
-/// 
+///
 /// This function starts with the opening balance and successively adds each transaction amount
 /// to calculate a running balance. It then verifies:
 /// - Each calculated running balance matches the transaction's stated balance
 /// - The final calculated balance matches the statement's closing balance
-/// 
+///
 /// # Panics
-/// 
+///
 /// Panics if required data is missing (this should not happen during runtime):
 /// - Any transaction is missing an amount or balance
-/// 
+///
 pub fn check_balances(sd: &mut StatementData) {
     // Log error and return if either balance is missing
     if sd.opening_balance.is_none() || sd.closing_balance.is_none() {
@@ -24,26 +24,28 @@ pub fn check_balances(sd: &mut StatementData) {
     let closing_balance = sd.closing_balance.unwrap();
     let mut running_balance = opening_balance;
     let mut errors = Vec::new();
-    
+
     // Round to 2 decimal places to avoid floating point precision issues
     running_balance = (running_balance * 100.0).round() / 100.0;
-    
+
     // Check each transaction
     for (index, transaction) in sd.proto_transactions.iter().enumerate() {
         // Panic if transaction data is missing
-        let transaction_amount = transaction.amount
-            .expect(&format!("Transaction {} must have an amount set before calling check_balances", index));
-        
-        let transaction_balance = transaction.balance
-            .expect(&format!("Transaction {} must have a balance set before calling check_balances", index));
-        
+        let transaction_amount = transaction.amount.unwrap_or_else(|| {
+            panic!("Transaction {index} must have an amount set before calling check_balances")
+        });
+
+        let transaction_balance = transaction.balance.unwrap_or_else(|| {
+            panic!("Transaction {index} must have a balance set before calling check_balances")
+        });
+
         // Add transaction amount to running balance
         running_balance += transaction_amount;
-        
+
         // Round to 2 decimal places to avoid floating point precision issues
         running_balance = (running_balance * 100.0).round() / 100.0;
         let transaction_balance = (transaction_balance * 100.0).round() / 100.0;
-        
+
         // Check if calculated balance matches transaction balance
         if (running_balance - transaction_balance).abs() > 0.01 {
             let difference = (running_balance - transaction_balance).abs();
@@ -53,12 +55,12 @@ pub fn check_balances(sd: &mut StatementData) {
             ));
         }
     }
-    
+
     // Add all transaction balance errors
     for error in errors {
         sd.add_error(error);
     }
-    
+
     // Check final balance against closing balance
     let closing_balance = (closing_balance * 100.0).round() / 100.0;
     if (running_balance - closing_balance).abs() > 0.01 {
@@ -87,32 +89,38 @@ mod tests {
     fn test_check_balances_missing_opening_balance() {
         let mut sd = StatementData::new();
         sd.set_closing_balance(1000.0);
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 1);
-        assert!(sd.errors[0].contains("Cannot check balances if opening or closing balance is missing"));
+        assert!(
+            sd.errors[0].contains("Cannot check balances if opening or closing balance is missing")
+        );
     }
 
     #[test]
     fn test_check_balances_missing_closing_balance() {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 1);
-        assert!(sd.errors[0].contains("Cannot check balances if opening or closing balance is missing"));
+        assert!(
+            sd.errors[0].contains("Cannot check balances if opening or closing balance is missing")
+        );
     }
 
     #[test]
     fn test_check_balances_missing_both_balances() {
         let mut sd = StatementData::new();
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 1);
-        assert!(sd.errors[0].contains("Cannot check balances if opening or closing balance is missing"));
+        assert!(
+            sd.errors[0].contains("Cannot check balances if opening or closing balance is missing")
+        );
     }
 
     #[test]
@@ -121,12 +129,12 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(900.0);
-        
+
         let mut tx = ProtoTransaction::new();
         // No amount set
         tx.set_balance(900.0);
         sd.add_proto_transaction(tx);
-        
+
         check_balances(&mut sd);
     }
 
@@ -136,12 +144,12 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(900.0);
-        
+
         let mut tx = ProtoTransaction::new();
         tx.set_amount(-100.0);
         // No balance set
         sd.add_proto_transaction(tx);
-        
+
         check_balances(&mut sd);
     }
 
@@ -151,9 +159,9 @@ mod tests {
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(1000.0);
         // No transactions
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -163,9 +171,9 @@ mod tests {
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(900.0);
         // No transactions
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 1);
         assert!(sd.errors[0].contains("Final balance mismatch"));
         assert!(sd.errors[0].contains("Calculated: 1000.00, Stated: 900.00, Difference: 100.00"));
@@ -176,11 +184,11 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(900.0);
-        
+
         sd.add_proto_transaction(create_transaction(-100.0, 900.0));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -189,11 +197,11 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(900.0);
-        
+
         sd.add_proto_transaction(create_transaction(-100.0, 850.0)); // Should be 900
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 1);
         // Only one error: transaction balance mismatch
         assert!(sd.errors[0].contains("Transaction 1 balance mismatch"));
@@ -205,18 +213,18 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(925.0);
-        
+
         // Transaction 1: 1000 - 50 = 950
         sd.add_proto_transaction(create_transaction(-50.0, 950.0));
-        
+
         // Transaction 2: 950 + 100 = 1050
         sd.add_proto_transaction(create_transaction(100.0, 1050.0));
-        
+
         // Transaction 3: 1050 - 125 = 925
         sd.add_proto_transaction(create_transaction(-125.0, 925.0));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -225,18 +233,18 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(925.0);
-        
+
         // Transaction 1: 1000 - 50 = 950 (correct)
         sd.add_proto_transaction(create_transaction(-50.0, 950.0));
-        
+
         // Transaction 2: 950 + 100 = 1050, but transaction says 1000 (error)
         sd.add_proto_transaction(create_transaction(100.0, 1000.0));
-        
+
         // Transaction 3: Running balance is 1050, so 1050 - 125 = 925 (correct for running balance)
         sd.add_proto_transaction(create_transaction(-125.0, 925.0));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 1);
         // Only error: transaction 2 balance mismatch
         assert!(sd.errors[0].contains("Transaction 2 balance mismatch"));
@@ -248,11 +256,11 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(800.0); // Wrong final balance
-        
+
         sd.add_proto_transaction(create_transaction(-100.0, 900.0)); // Correct transaction
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 1);
         assert!(sd.errors[0].contains("Final balance mismatch"));
         assert!(sd.errors[0].contains("Calculated: 900.00, Stated: 800.00, Difference: 100.00"));
@@ -263,12 +271,12 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(999.90);
-        
+
         // Use a transaction amount that could cause floating point precision issues
         sd.add_proto_transaction(create_transaction(-0.1, 999.899999)); // Should round to 999.90
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -277,11 +285,11 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(-500.0);
         sd.set_closing_balance(-700.0);
-        
+
         sd.add_proto_transaction(create_transaction(-200.0, -700.0));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -290,11 +298,11 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(100.0);
         sd.set_closing_balance(400.0);
-        
+
         sd.add_proto_transaction(create_transaction(300.0, 400.0));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -303,11 +311,11 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(1000.0);
-        
+
         sd.add_proto_transaction(create_transaction(0.0, 1000.0));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -316,18 +324,18 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1000.0);
         sd.set_closing_balance(600.0);
-        
+
         // Transaction 1: correct
         sd.add_proto_transaction(create_transaction(-100.0, 900.0));
-        
+
         // Transaction 2: incorrect - should be 800, but stated as 750
         sd.add_proto_transaction(create_transaction(-100.0, 750.0));
-        
+
         // Transaction 3: incorrect - running balance is 800, so 800 - 100 = 700, but stated as 650
         sd.add_proto_transaction(create_transaction(-100.0, 650.0));
-        
+
         check_balances(&mut sd);
-        
+
         // Should have errors for transactions 2 and 3, plus potentially final balance error
         assert!(sd.errors.len() >= 2);
         assert!(sd.errors[0].contains("Transaction 2"));
@@ -339,12 +347,12 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(100.0);
         sd.set_closing_balance(99.67);
-        
+
         // This should result in exactly 99.67 after rounding
         sd.add_proto_transaction(create_transaction(-0.33, 99.67));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 
@@ -353,11 +361,11 @@ mod tests {
         let mut sd = StatementData::new();
         sd.set_opening_balance(1_000_000.0);
         sd.set_closing_balance(999_999.99);
-        
+
         sd.add_proto_transaction(create_transaction(-0.01, 999_999.99));
-        
+
         check_balances(&mut sd);
-        
+
         assert_eq!(sd.errors.len(), 0);
     }
 }

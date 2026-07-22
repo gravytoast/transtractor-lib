@@ -44,6 +44,7 @@ htmlcov/
 .coverage.*
 .cache
 nosetests.xml
+cov.xml
 coverage.xml
 *.cover
 *.py.cover
@@ -206,5 +207,24 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Custom
+# User PDF files for testing
 pdf/
+pdfs/
+
+# Coverage reports
+cov-python.xml
+cov-python-md
+cov-rust.xml
+cov-rust.md
+htmlcov-python/
+
+# Audit reports
+cargo-audit.json
+cargo-audit.md
+cargo-deny.json
+cargo-deny.md
+pip-audit.json
+pip-audit.md
+pip-licenses.json
+pip-licenses.md
+requirements-audit.txt

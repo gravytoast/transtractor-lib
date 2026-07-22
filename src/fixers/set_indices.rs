@@ -26,13 +26,13 @@ pub fn fix_set_indices(sd: &mut StatementData) {
         };
 
         // Check that dates are in chronological order (panic if not)
-        if let Some(prev) = prev_date {
-            if current_date < prev {
-                panic!(
-                    "Transaction dates are out of order at position {}: current date {} < previous date {}. The transtractor isn't set up to deal with this.",
-                    i, current_date, prev
-                );
-            }
+        if let Some(prev) = prev_date
+            && current_date < prev
+        {
+            panic!(
+                "Transaction dates are out of order at position {}: current date {} < previous date {}. The transtractor isn't set up to deal with this.",
+                i, current_date, prev
+            );
         }
         prev_date = Some(current_date);
 

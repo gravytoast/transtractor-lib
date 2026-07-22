@@ -1,0 +1,126 @@
+# Run a scan of all Python and Rust dependencies for known vulnerabilities and licenses.
+# Workflow is scheduled to run weekly, triggered manually via the "Run workflow" button 
+# in the Actions tab or automatically on pushes and pull requests targeting the main 
+# branch. The workflow will fail if any vulnerabilities are found in the dependencies.
+
+name: Dependency Audit
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays at 06:00 UTC
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: 3.14
+
+      - name: Sync Python dev environment
+        run: uv sync --locked --group dev
+
+      - name: Scan Rust binaries for vulnerabilities
+        run: cargo audit --json > cargo-audit.json || true
+
+      - name: Render Rust audit findings
+        id: render-cargo-audit
+        run: uv run python scripts/render-cargo-audit.py cargo-audit.json cargo-audit.md
+
+      - name: Append findings to workflow summary
+        run: cat cargo-audit.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Scan Rust binaries for licenses
+        run: cargo deny --format json check licenses 2> cargo-deny.json || true
+
+      - name: Render Rust license findings
+        id: render-cargo-deny
+        run: uv run python scripts/render-cargo-deny.py cargo-deny.json cargo-deny.md
+
+      - name: Append license findings to workflow summary
+        run: cat cargo-deny.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Export Python runtime dependencies
+        run: |
+          uv export \
+            --format requirements-txt \
+            --no-dev \
+            --no-emit-project \
+            --all-extras \
+            -o requirements-audit.txt
+
+      - name: Scan Python dependencies for vulnerabilities
+        run: |
+          uv run pip-audit \
+            -r requirements-audit.txt \
+            --require-hashes \
+            --disable-pip \
+            --format=json \
+            -o pip-audit.json || true
+
+      - name: Render Python audit findings
+        id: render-pip-audit
+        run: uv run python scripts/render-pip-audit.py pip-audit.json pip-audit.md
+
+      - name: Append Python findings to workflow summary
+        run: cat pip-audit.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Scan Python dependencies for licenses
+        shell: bash
+        run: |
+          PACKAGES=$(grep -oE '^[A-Za-z0-9][A-Za-z0-9._-]*' requirements-audit.txt | sort -u | xargs)
+          uv run pip-licenses \
+            --from=mixed \
+            --packages "$PACKAGES" \
+            --format=json > pip-licenses.json || true
+
+      - name: Render Python license findings
+        id: render-pip-licenses
+        run: uv run python scripts/render-pip-licenses.py pip-licenses.json pip-licenses.md
+
+      - name: Append Python license findings to workflow summary
+        run: cat pip-licenses.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: |
+            cargo-audit.json
+            cargo-audit.md
+            cargo-deny.json
+            cargo-deny.md
+            pip-audit.json
+            pip-audit.md
+            pip-licenses.json
+            pip-licenses.md
+          if-no-files-found: warn
+      
+      - name: Fail workflow if vulnerabilities found
+        if: always()
+        run: |
+          bash scripts/handle-audit-findings.sh \
+            "${{ steps.render-cargo-audit.outputs.has_findings }}" \
+            "${{ steps.render-cargo-deny.outputs.has_findings }}" \
+            "${{ steps.render-pip-audit.outputs.has_findings }}" \
+            "${{ steps.render-pip-licenses.outputs.has_findings }}"

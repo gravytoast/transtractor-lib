@@ -1,6 +1,6 @@
-use crate::structs::TextItem;
 use crate::parsers::base::AmountParser;
 use crate::parsers::base::ParserPrimer;
+use crate::structs::TextItem;
 
 pub struct PrimedAmountParser {
     primer_parser: ParserPrimer,
@@ -65,7 +65,7 @@ impl PrimedAmountParser {
             "y1" => (amount_item.y1 - primer_item.y1).abs() <= self.alignment_tol,
             "y2" => (amount_item.y2 - primer_item.y2).abs() <= self.alignment_tol,
             "" => true, // No alignment check
-            _ => true, // No alignment check
+            _ => true,  // No alignment check
         };
         let page_ok = amount_item.page == primer_item.page;
 
@@ -94,7 +94,8 @@ impl PrimedAmountParser {
 
     /// Get the highest lookahead between primer and amount parsers
     pub fn get_max_lookahead(&self) -> usize {
-        self.primer_parser.max_lookahead
+        self.primer_parser
+            .max_lookahead
             .max(self.amount_parser.max_lookahead)
     }
 }

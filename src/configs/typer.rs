@@ -4,7 +4,7 @@ use crate::structs::text_items::tokenise_items;
 use std::collections::{HashMap, HashSet};
 
 /// Struct to identify statement types from text items.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct StatementTyper {
     /// Collection of all account_terms identifying statement types (case-sensitive),
     account_terms: Vec<String>,
@@ -19,17 +19,7 @@ pub struct StatementTyper {
 impl StatementTyper {
     /// Initialize empty StatementTyper
     pub fn new() -> Self {
-        let account_terms = vec![];
-        let max_lookahead = 0;
-        let keys_by_term: HashMap<String, Vec<String>> = HashMap::new();
-        let expected_terms_by_key: HashMap<String, usize> = HashMap::new();
-
-        StatementTyper {
-            account_terms,
-            keys_by_term,
-            expected_terms_by_key,
-            max_lookahead,
-        }
+        Self::default()
     }
 
     pub fn add_account_terms(&mut self, key: &str, terms: &Vec<String>) {
@@ -118,10 +108,10 @@ impl StatementTyper {
         let complete_keys: Vec<String> = matches_by_key
             .iter()
             .filter_map(|(key, &count)| {
-                if let Some(&expected) = self.expected_terms_by_key.get(key) {
-                    if count == expected {
-                        return Some(key.clone());
-                    }
+                if let Some(&expected) = self.expected_terms_by_key.get(key)
+                    && count == expected
+                {
+                    return Some(key.clone());
                 }
                 None
             })

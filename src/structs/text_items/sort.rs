@@ -15,7 +15,7 @@ fn average_char_width(item: &TextItem) -> f32 {
 // Return new array of items sorted by x position with close items merged
 fn fix_by_x(items: &mut Vec<TextItem>, x_gap: f32) -> Vec<TextItem> {
     // Sort items by increasing X position
-    items.sort_by(|a, b| a.x1.cmp(&b.x1));
+    items.sort_by_key(|a| a.x1);
     // Return if x_gap is zero, no merging needed
     if x_gap == 0.0 {
         return items.clone();
@@ -24,7 +24,7 @@ fn fix_by_x(items: &mut Vec<TextItem>, x_gap: f32) -> Vec<TextItem> {
     for item in items {
         if let Some(last_item) = fixed_items.last_mut() {
             // Merge new line into last item if close enough
-            let avg_char_width = average_char_width(&last_item);
+            let avg_char_width = average_char_width(last_item);
             let x_merge_tol = (avg_char_width * x_gap) as i32;
             // x1 of next item overlaps within x range of last item
             let x1_within_tol =
@@ -56,9 +56,9 @@ pub fn sort_items(items: &Vec<TextItem>, x_gap: f32, y_bin: f32) -> Vec<TextItem
         } else {
             num_ascending += 1;
         }
-        let page_entry = page_map.entry(item.page).or_insert_with(HashMap::new);
+        let page_entry = page_map.entry(item.page).or_default();
         let y1_bin = (item.y1 as f32 / y_bin) as i32;
-        let y_bin_entry = page_entry.entry(y1_bin).or_insert_with(Vec::new);
+        let y_bin_entry = page_entry.entry(y1_bin).or_default();
         y_bin_entry.push(item.clone());
     }
 

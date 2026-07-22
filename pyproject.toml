@@ -6,19 +6,24 @@ build-backend = "maturin"
 name = "transtractor"
 description = "Universal PDF bank statement parsing library"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { file = "LICENSE" }
-authors = [
-    { name = "Daniel Weber", email = "develop@transtractor.net" }
+authors = [{ name = "Daniel Weber", email = "develop@transtractor.net" }]
+keywords = [
+    "pdf",
+    "bank",
+    "statement",
+    "parser",
+    "transaction",
+    "extraction",
+    "csv",
 ]
-keywords = ["pdf", "bank", "statement", "parser", "transaction", "extraction", "csv"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Financial and Insurance Industry",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -31,8 +36,22 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dynamic = ["version"]
-dependencies = [
-    "pdfplumber>=0.11.8,<0.12.0",
+dependencies = ["pdfplumber>=0.11.10,<0.12.0"]
+
+[dependency-groups]
+dev = [
+    "defusedxml",
+    "maturin>=1.9,<2.0",
+    "pip-audit",
+    "pip-licenses",
+    "pyright",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+docs = [
+    "sphinx>=6.0,<9.0",
+    "sphinx_rtd_theme>=3.0.2,<3.1",
 ]
 
 [project.urls]
@@ -45,3 +64,39 @@ Issues = "https://github.com/transtractor/transtractor-lib/issues"
 features = ["pyo3/extension-module"]
 python-source = "python"
 include = ["python/transtractor/configs/**/*"]
+
+[tool.pyright]
+include = ["python"]
+exclude = ["**/.venv", "**/__pycache__", "**/node_modules", "**/.*"]
+typeCheckingMode = "basic"
+pythonVersion = "3.14"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ruff.lint]
+select = [
+    "F",   # pyflakes
+    "E",   # pycodestyle
+    "W",   # pycodestyle
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "T20", # flake8-print
+    "S",   # flake8-bandit
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py"]
+testpaths = ["tests/python"]
+addopts = "-vv --cov=transtractor --cov-report=xml:cov-python.xml"

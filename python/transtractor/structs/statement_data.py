@@ -1,25 +1,34 @@
-"""Base data structure for recording extracted statement data for 
+"""Base data structure for recording extracted statement data for
 subsequent processing in Python."""
 
 import csv
-from typing import Union
 
 from .transaction import Transaction
 
 
 def validate_fields(fields: list[str]) -> None:
     """Validate that the provided fields are valid Transaction attributes.
-    
+
     :param fields: List of field names to validate
     :type fields: list[str]
-    :raises ValueError: If any field is not a valid 
+    :raises ValueError: If any field is not a valid
         Transaction or StatementData attribute
     """
-    valid_fields = {'date', 'date_index', 'description', 'amount', 'balance',
-                    'key', 'filename', 'account_number'}
+    valid_fields = {
+        "date",
+        "date_index",
+        "description",
+        "amount",
+        "balance",
+        "key",
+        "filename",
+        "account_number",
+    }
     for field in fields:
         if field not in valid_fields:
-            raise ValueError(f"Invalid field: {field}. Valid fields are: {valid_fields}")
+            raise ValueError(
+                f"Invalid field: {field}. Valid fields are: {valid_fields}"
+            )
 
 
 class StatementData:
@@ -46,23 +55,25 @@ class StatementData:
         self.set_transactions(transactions)
 
     def __repr__(self) -> str:
-        return (f"StatementData(key={self._key!r}, "
-                f"filename={self._filename!r}, "
-                f"account_number={self._account_number!r}, "
-                f"transactions=[{len(self._transactions)} transactions])")
+        return (
+            f"StatementData(key={self._key!r}, "
+            f"filename={self._filename!r}, "
+            f"account_number={self._account_number!r}, "
+            f"transactions=[{len(self._transactions)} transactions])"
+        )
 
     @property
-    def key(self) -> str:
+    def key(self) -> str | None:
         """Get the statement key."""
         return self._key
 
     @property
-    def filename(self) -> str:
+    def filename(self) -> str | None:
         """Get the filename."""
         return self._filename
 
     @property
-    def account_number(self) -> str:
+    def account_number(self) -> str | None:
         """Get the account number."""
         return self._account_number
 
@@ -101,7 +112,9 @@ class StatementData:
         :raises TypeError: If account_number is not a string
         """
         if not isinstance(account_number, str):
-            raise TypeError(f"account_number must be a string, got {type(account_number).__name__}")
+            raise TypeError(
+                f"account_number must be a string, got {type(account_number).__name__}"
+            )
         self._account_number = account_number
 
     def set_transactions(self, transactions: list[Transaction]) -> None:
@@ -109,10 +122,12 @@ class StatementData:
 
         :param transactions: List of transactions
         :type transactions: list[Transaction]
-        :raises TypeError: If transactions is not a list or contains non-Transaction items
+        :raises TypeError: Transactions not a list or contain non-Transaction items
         """
         if not isinstance(transactions, list):
-            raise TypeError(f"transactions must be a list, got {type(transactions).__name__}")
+            raise TypeError(
+                f"transactions must be a list, got {type(transactions).__name__}"
+            )
 
         for i, transaction in enumerate(transactions):
             if not isinstance(transaction, Transaction):
@@ -123,10 +138,16 @@ class StatementData:
 
         self._transactions = transactions
 
-    def to_csv(self,
-            file_path: str,
-            fields: Union[tuple[str, ...], list[str]] = ('date', 'description', 'amount', 'balance')
-        ) -> None:
+    def to_csv(
+        self,
+        file_path: str,
+        fields: tuple[str, ...] | list[str] = (
+            "date",
+            "description",
+            "amount",
+            "balance",
+        ),
+    ) -> None:
         """Export the statement data to a CSV file.
 
         :param file_path: Path to the output CSV file
@@ -152,7 +173,7 @@ class StatementData:
         # Validate fields
         validate_fields(list(fields))
 
-        with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
+        with open(file_path, mode="w", newline="", encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile)
             # Write header
             writer.writerow(fields)
@@ -160,16 +181,22 @@ class StatementData:
             for transaction in self._transactions:
                 row = []
                 for field in fields:
-                    if field in {'key', 'filename', 'account_number'}:
+                    if field in {"key", "filename", "account_number"}:
                         value = getattr(self, f"_{field}", None)
                     else:
                         value = getattr(transaction, field, None)
                     row.append(value)
                 writer.writerow(row)
 
-    def to_pandas_dict(self,
-            fields: Union[tuple[str, ...], list[str]] = ('date', 'description', 'amount', 'balance')
-        ) -> dict[str, list]:
+    def to_pandas_dict(
+        self,
+        fields: tuple[str, ...] | list[str] = (
+            "date",
+            "description",
+            "amount",
+            "balance",
+        ),
+    ) -> dict[str, list]:
         """Convert the statement data to a dictionary suitable for pandas DataFrame.
 
         :param fields: Fields to include in the dictionary. Defaults to
@@ -194,7 +221,7 @@ class StatementData:
 
         for transaction in self._transactions:
             for field in fields:
-                if field in {'key', 'filename', 'account_number'}:
+                if field in {"key", "filename", "account_number"}:
                     value = getattr(self, f"_{field}", None)
                 else:
                     value = getattr(transaction, field, None)

@@ -45,12 +45,12 @@ impl AmountParser {
         // Try longest first, then shorter
         let max = usize::min(self.max_lookahead, items.len());
         for i in (1..=max).rev() {
-            if let Some(curr_item) = TextItem::from_items(&items[0..i]) {
-                if let Some(val) = self.parser.parse(&curr_item.text) {
-                    self.value = Some(val);
-                    self.text_item = Some(curr_item);
-                    return i;
-                }
+            if let Some(curr_item) = TextItem::from_items(&items[0..i])
+                && let Some(val) = self.parser.parse(&curr_item.text)
+            {
+                self.value = Some(val);
+                self.text_item = Some(curr_item);
+                return i;
             }
         }
         0
@@ -72,7 +72,14 @@ mod tests {
     use crate::structs::TextItem;
 
     fn make_text_item(text: &str) -> TextItem {
-        TextItem { text: text.to_string(), x1: 0, y1: 0, x2: 0, y2: 0, page: 1 }
+        TextItem {
+            text: text.to_string(),
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 0,
+            page: 1,
+        }
     }
 
     #[test]
@@ -88,10 +95,7 @@ mod tests {
     #[test]
     fn test_parse_longest_first() {
         let mut parser = AmountParser::new(&["format1"]);
-        let items = vec![
-            make_text_item("1,234"),
-            make_text_item(".56"),
-        ];
+        let items = vec![make_text_item("1,234"), make_text_item(".56")];
         // "1,234 .56" is not a valid format1, so should fail
         let consumed = parser.parse_items(&items);
         assert_eq!(consumed, 0);
@@ -102,10 +106,7 @@ mod tests {
     #[test]
     fn test_parse_longest_first_successfully() {
         let mut parser = AmountParser::new(&["format4"]);
-        let items = vec![
-            make_text_item("1,234.56"),
-            make_text_item("DR"),
-        ];
+        let items = vec![make_text_item("1,234.56"), make_text_item("DR")];
         // "1,234.56 DR" is a valid format4, so should succeed
         let consumed = parser.parse_items(&items);
         assert_eq!(consumed, 2);

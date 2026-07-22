@@ -37,7 +37,9 @@ pub fn get_compulsory_fields(transaction_formats: Vec<Vec<String>>) -> Vec<Strin
 mod tests {
     use super::get_compulsory_fields;
 
-    fn ss(v: &[&str]) -> Vec<String> { v.iter().map(|s| s.to_string()).collect() }
+    fn ss(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
 
     #[test]
     fn compulsory_fields_basic_intersection() {
@@ -68,11 +70,7 @@ mod tests {
 
     #[test]
     fn compulsory_fields_disjoint_formats_yield_empty() {
-        let formats = vec![
-            ss(&["date"]),
-            ss(&["amount"]),
-            ss(&["balance"]),
-        ];
+        let formats = vec![ss(&["date"]), ss(&["amount"]), ss(&["balance"])];
         let got = get_compulsory_fields(formats);
         assert!(got.is_empty());
     }

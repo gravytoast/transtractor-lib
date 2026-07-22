@@ -18,7 +18,7 @@ pub fn text_items_to_statement_datas(
         // Sort will just return a clone if y_bin is 0.0
         let sorted_items = sort_items(items, cfg.fix_text_order[1], cfg.fix_text_order[0]);
         let tokenised_sorted_items = tokenise_items(&sorted_items);
-        let mut data = text_items_to_statement_data(&cfg, &tokenised_sorted_items);
+        let mut data = text_items_to_statement_data(cfg, &tokenised_sorted_items);
         data.set_key(cfg.key.clone());
 
         // Apply fixers to clean up the data

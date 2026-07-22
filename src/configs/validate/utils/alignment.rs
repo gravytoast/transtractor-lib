@@ -10,13 +10,19 @@ pub fn validate_alignment(alignment: &str, full: bool, allow_blank: bool) -> Res
     if full {
         let valid_alignments_full = ["x1", "x2", "y1", "y2"];
         if !valid_alignments_full.contains(&alignment) {
-            return Err(format!("{} must be one of {:?}", alignment, valid_alignments_full));
+            return Err(format!(
+                "{} must be one of {:?}",
+                alignment, valid_alignments_full
+            ));
         }
         return Ok(());
     }
     let valid_alignments = ["x1", "x2"];
     if !valid_alignments.contains(&alignment) {
-        return Err(format!("{} must be one of {:?}", alignment, valid_alignments));
+        return Err(format!(
+            "{} must be one of {:?}",
+            alignment, valid_alignments
+        ));
     }
     Ok(())
 }

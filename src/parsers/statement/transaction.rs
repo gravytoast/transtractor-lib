@@ -8,8 +8,8 @@ use crate::structs::ProtoTransaction;
 use crate::structs::StatementConfig;
 use crate::structs::StatementData;
 use crate::structs::TextItem;
-use std::collections::HashMap;
 use regex::Regex;
+use std::collections::HashMap;
 
 pub struct TransactionParser {
     date_parser: TransactionDateParser,
@@ -40,7 +40,8 @@ impl TransactionParser {
         let new_line_fields = transaction::utils::get_new_line_fields(transaction_formats.clone());
         let end_line_fields = transaction::utils::get_end_line_fields(transaction_formats.clone());
         let next_fields = transaction::utils::get_next_fields(transaction_formats.clone());
-        let compulsory_fields = transaction::utils::get_compulsory_fields(transaction_formats.clone());
+        let compulsory_fields =
+            transaction::utils::get_compulsory_fields(transaction_formats.clone());
         let all_fields = transaction::utils::get_all_fields(transaction_formats);
         let start_terms: Vec<&str> = config
             .transaction_terms
@@ -82,7 +83,9 @@ impl TransactionParser {
         let start_consumed = self.start_primer.parse_items(items);
         if start_consumed > 0 {
             if self.start_date_required && data.start_date().is_none() {
-                panic!("Statement config requires a start date is set prior to parsing transactions.");
+                panic!(
+                    "Statement config requires a start date is set prior to parsing transactions."
+                );
             }
             self.date_parser.set_start_date_year(data);
             self.date_parser_newline.set_start_date_year(data);
@@ -165,26 +168,10 @@ impl TransactionParser {
     fn all_headers_set(&self) -> bool {
         for field in &self.all_fields {
             match field.as_str() {
-                "date" => {
-                    if !self.date_parser.is_header_set() {
-                        return false;
-                    }
-                }
-                "description" => {
-                    if !self.description_parser.is_header_set() {
-                        return false;
-                    }
-                }
-                "amount" => {
-                    if !self.amount_parser.is_header_set() {
-                        return false;
-                    }
-                }
-                "balance" => {
-                    if !self.balance_parser.is_header_set() {
-                        return false;
-                    }
-                }
+                "date" if !self.date_parser.is_header_set() => return false,
+                "description" if !self.description_parser.is_header_set() => return false,
+                "amount" if !self.amount_parser.is_header_set() => return false,
+                "balance" if !self.balance_parser.is_header_set() => return false,
                 _ => {}
             }
         }
@@ -201,7 +188,7 @@ impl TransactionParser {
         }
     }
 
-    /// Readjust description parser x_bounds if not already done and 
+    /// Readjust description parser x_bounds if not already done and
     /// headers are all set
     fn adjust_description_x_bounds(&mut self) {
         if self.description_x_bounds_adjusted {
@@ -257,10 +244,10 @@ impl TransactionParser {
         self.reset_all_parsers();
         self.prime_parsers(self.new_line_fields.clone());
 
-        if self.new_line_fields.contains(&"description".to_string()) {
-            if let Some(next_fields) = self.next_fields.get("description") {
-                self.prime_parsers(next_fields.clone());
-            }
+        if self.new_line_fields.contains(&"description".to_string())
+            && let Some(next_fields) = self.next_fields.get("description")
+        {
+            self.prime_parsers(next_fields.clone());
         }
     }
 
@@ -272,7 +259,8 @@ impl TransactionParser {
         {
             return;
         }
-        self.current_transaction.clean_description(&self.description_exclude_patterns);
+        self.current_transaction
+            .clean_description(&self.description_exclude_patterns);
         data.proto_transactions
             .push(self.current_transaction.clone());
     }
@@ -294,10 +282,10 @@ impl TransactionParser {
         let next_fields_vec = self.next_fields.get(&field).cloned().unwrap_or_default();
         self.prime_parsers(next_fields_vec.clone());
         // Prime field after description if it is a next field
-        if next_fields_vec.contains(&"description".to_string()) {
-            if let Some(desc_next_fields_vec) = self.next_fields.get("description").cloned() {
-                self.prime_parsers(desc_next_fields_vec);
-            }
+        if next_fields_vec.contains(&"description".to_string())
+            && let Some(desc_next_fields_vec) = self.next_fields.get("description").cloned()
+        {
+            self.prime_parsers(desc_next_fields_vec);
         }
     }
 

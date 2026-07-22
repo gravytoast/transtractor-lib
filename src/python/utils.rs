@@ -41,6 +41,24 @@ pub fn py_text_items_to_rust_text_items(
     Ok(text_items)
 }
 
+/// Convert Rust Text Items to a Python list of text item dictionaries
+pub fn rust_text_items_to_py_text_items(rust_text_items: &[TextItem]) -> PyResult<Py<PyAny>> {
+    Python::attach(|py| {
+        let py_list = PyList::empty(py);
+        for text_item in rust_text_items {
+            let dict = pyo3::types::PyDict::new(py);
+            dict.set_item("text", &text_item.text)?;
+            dict.set_item("x1", text_item.x1)?;
+            dict.set_item("y1", text_item.y1)?;
+            dict.set_item("x2", text_item.x2)?;
+            dict.set_item("y2", text_item.y2)?;
+            dict.set_item("page", text_item.page)?;
+            py_list.append(dict)?;
+        }
+        Ok(py_list.into())
+    })
+}
+
 /// Convert a Rust StatementData to a Python StatementData object
 pub fn rust_statement_data_to_py_statement_data(
     rust_statement_data: &crate::structs::StatementData,
@@ -82,7 +100,7 @@ pub fn rust_statement_data_to_py_statement_data(
             // Transaction.__init__(date: int, description: str, amount: float, balance: float)
             let py_transaction = transaction_class.call1((
                 proto_tx.date.unwrap(),
-                proto_tx.index.clone(),
+                proto_tx.index,
                 proto_tx.description.clone(),
                 proto_tx.amount.unwrap(),
                 proto_tx.balance.unwrap(),

@@ -10,7 +10,6 @@ use format3::Format3;
 use format4::Format4;
 use format5::Format5;
 
-
 /// Trait for amount formats.
 pub trait AmountFormat {
     /// Number of space-delimited items in the input string.
@@ -19,7 +18,6 @@ pub trait AmountFormat {
     /// Parse the input string and return a float if valid.
     fn parse(&self, input: &str) -> Option<f64>;
 }
-
 
 /// Get a list of valid formats.
 pub fn get_valid_formats() -> Vec<&'static str> {
@@ -35,20 +33,23 @@ impl MultiAmountFormatParser {
     /// Create a new dispatcher from a list of format names.
     pub fn new(format_names: &[&str]) -> Self {
         // Collect (name, NUM_TERMS) pairs
-        let mut formats: Vec<(&str, usize)> = format_names.iter().map(|&name| {
-            let num_items = match name {
-                "format1" => Format1.num_items(),
-                "format2" => Format2.num_items(),
-                "format3" => Format3.num_items(),
-                "format4" => Format4.num_items(),
-                "format5" => Format5.num_items(),
-                _ => 0,
-            };
-            (name, num_items)
-        }).collect();
+        let mut formats: Vec<(&str, usize)> = format_names
+            .iter()
+            .map(|&name| {
+                let num_items = match name {
+                    "format1" => Format1.num_items(),
+                    "format2" => Format2.num_items(),
+                    "format3" => Format3.num_items(),
+                    "format4" => Format4.num_items(),
+                    "format5" => Format5.num_items(),
+                    _ => 0,
+                };
+                (name, num_items)
+            })
+            .collect();
 
         // Sort by num items descending
-        formats.sort_by(|a, b| b.1.cmp(&a.1));
+        formats.sort_by_key(|a| std::cmp::Reverse(a.1));
 
         // Instantiate parsers in sorted order
         let mut parsers: Vec<Box<dyn AmountFormat>> = Vec::new();
@@ -77,7 +78,11 @@ impl MultiAmountFormatParser {
 
     /// Get the maximum number of items among the included formats.
     pub fn max_items(&self) -> usize {
-        self.parsers.iter().map(|p| p.num_items()).max().unwrap_or(0)
+        self.parsers
+            .iter()
+            .map(|p| p.num_items())
+            .max()
+            .unwrap_or(0)
     }
 }
 

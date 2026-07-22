@@ -31,12 +31,10 @@ impl OpeningBalanceParser {
 
     pub fn parse_items(&mut self, items: &[TextItem], data: &mut StatementData) -> usize {
         let consumed = self.parser.parse_items(items);
-        if consumed > 0 {
+        if consumed > 0 && self.parser.value().is_some() && data.opening_balance().is_none() {
+            // Only set if not already set to avoid overwriting a prior successful parse
             if let Some(value) = self.parser.value() {
-                // Only set if not already set to avoid overwriting a prior successful parse
-                if data.opening_balance().is_none() {
-                    data.set_opening_balance(value);
-                }
+                data.set_opening_balance(value);
             }
         }
         consumed

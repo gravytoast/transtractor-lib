@@ -1,7 +1,7 @@
 /// Parses a day string and returns the day as u32 if valid (1-31), or None if invalid.
 pub fn parse_day(day_str: &str) -> Option<u32> {
     let day = day_str.trim().parse::<u32>().ok()?;
-    if day >= 1 && day <= 31 {
+    if (1..=31).contains(&day) {
         Some(day)
     } else {
         None
@@ -12,10 +12,10 @@ pub fn parse_day(day_str: &str) -> Option<u32> {
 /// Returns None if the input is not a valid month.
 pub fn parse_month(month_str: &str) -> Option<u32> {
     // If a number is passed, return it as-is (1-based)
-    if let Ok(num) = month_str.trim().parse::<u32>() {
-        if num >= 1 && num <= 12 {
-            return Some(num);
-        }
+    if let Ok(num) = month_str.trim().parse::<u32>()
+        && (1..=12).contains(&num)
+    {
+        return Some(num);
     }
     match month_str.trim().to_ascii_lowercase().as_str() {
         "jan" | "january" => Some(1),
@@ -42,7 +42,7 @@ pub fn parse_year(year_str: &str) -> Option<u32> {
     let year = year_str.trim().parse::<u32>().ok()?;
     if year < 100 {
         Some(year + 2000)
-    } else if year >= 1970 && year < 2100 {
+    } else if (1970..2100).contains(&year) {
         Some(year)
     } else {
         None

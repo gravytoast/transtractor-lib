@@ -102,22 +102,24 @@ mod tests {
         let items = vec![create_test_item("1234")];
 
         let consumed = parser.parse_items(&items);
-        
+
         assert_eq!(consumed, 1);
         assert_eq!(parser.value, Some("1234".to_string()));
         assert_eq!(parser.text_item().text, "1234");
-    }    #[test]
+    }
+    #[test]
     fn test_parse_single_item_no_match() {
         let patterns = vec![Regex::new(r"\b\d{4}\b").unwrap()];
         let mut parser = ValueParser::new(&patterns);
         let items = vec![create_test_item("ABC")];
 
         let consumed = parser.parse_items(&items);
-        
+
         assert_eq!(consumed, 0);
         assert!(parser.value.is_none());
         assert!(parser.text_item.is_none());
-    }    #[test]
+    }
+    #[test]
     fn test_parse_multiple_items_joined() {
         // Pattern expects numbers separated by spaces and hyphens (TextItem::from_items adds spaces)
         let patterns = vec![Regex::new(r"\d+\s+-\s+\d+\s+-\s+\d+").unwrap()];
@@ -131,11 +133,12 @@ mod tests {
         ];
 
         let consumed = parser.parse_items(&items);
-        
+
         assert_eq!(consumed, 5);
         assert_eq!(parser.value, Some("082 - 738 - 12345678".to_string()));
         assert_eq!(parser.text_item().text, "082 - 738 - 12345678");
-    }    #[test]
+    }
+    #[test]
     fn test_parse_space_separated_numbers() {
         // Pattern expects three numbers separated by spaces
         let patterns = vec![Regex::new(r"\b\d+\s+\d+\s+\d+\b").unwrap()];
@@ -147,11 +150,12 @@ mod tests {
         ];
 
         let consumed = parser.parse_items(&items);
-        
+
         assert_eq!(consumed, 3);
         assert_eq!(parser.value, Some("1234 5678 9012".to_string()));
         assert_eq!(parser.text_item().text, "1234 5678 9012");
-    }    #[test]
+    }
+    #[test]
     fn test_parse_longest_match_first() {
         // Two patterns: one for hyphenated pair (with spaces), one for single number
         let patterns = vec![
@@ -196,10 +200,11 @@ mod tests {
         let items: Vec<TextItem> = vec![];
 
         let consumed = parser.parse_items(&items);
-        
+
         assert_eq!(consumed, 0);
         assert!(parser.value.is_none());
-    }    #[test]
+    }
+    #[test]
     fn test_reset() {
         let patterns = vec![Regex::new(r"\b\d{4}\b").unwrap()];
         let mut parser = ValueParser::new(&patterns);
@@ -208,11 +213,12 @@ mod tests {
         parser.parse_items(&items);
         assert!(parser.value.is_some());
         assert!(parser.text_item.is_some());
-        
+
         parser.reset();
         assert!(parser.value.is_none());
         assert!(parser.text_item.is_none());
-    }    #[test]
+    }
+    #[test]
     fn test_multiple_patterns() {
         let patterns = vec![
             Regex::new(r"\b\d{4}\s\d{4}\s\d{4}\s\d{4}\b").unwrap(), // 4-part space-separated

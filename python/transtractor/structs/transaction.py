@@ -3,28 +3,28 @@
 from dataclasses import dataclass
 from datetime import date as Date
 from datetime import datetime
-from typing import Union
 
 
 @dataclass
 class Transaction:
     """Class representing a bank transaction."""
+
     date: Date
     date_index: int
     description: str
     amount: float
     balance: float
 
-    def __init__(self,
-            date: Union[Date, int],
-            date_index: int,
-            description:str,
-            amount: float,
-            balance: float
-        ):
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def __init__(
+        self,
+        date: Date | int,
+        date_index: int,
+        description: str,
+        amount: float,
+        balance: float,
+    ):
         """Initialize a Transaction.
-        
+
         :param date: Either a date object or milliseconds since epoch (int)
         :param date_index: Transaction index for the day
         :param description: Transaction description
