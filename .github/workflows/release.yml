@@ -356,6 +356,7 @@ jobs:
       attestations: write
 
     steps:
+      - uses: actions/checkout@v7
       - uses: actions/download-artifact@v7
       - name: Generate artifact attestation
         uses: actions/attest@v4
