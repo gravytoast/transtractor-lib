@@ -25,7 +25,15 @@ impl ConfigDB {
         }
         Self { configs, typer }
     }
+}
 
+impl Default for ConfigDB {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ConfigDB {
     /// Add config directly from a JSON string, overwriting any existing config with the
     /// same key.
     pub fn register_from_str(&mut self, json_str: &str) -> Result<(), String> {

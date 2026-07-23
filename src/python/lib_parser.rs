@@ -8,16 +8,9 @@ use crate::python::utils;
 use pyo3::prelude::*;
 
 #[pyclass]
+#[derive(Default)]
 pub struct LibParser {
     db: ConfigDB,
-}
-
-impl Default for LibParser {
-    fn default() -> Self {
-        Self {
-            db: ConfigDB::new(),
-        }
-    }
 }
 
 #[pymethods]
