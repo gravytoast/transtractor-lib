@@ -1,5 +1,7 @@
 """Stub file for transtractor Rust extension module."""
 
+from .structs.statement_data import StatementData
+
 class LibParser:
     """Parser for extracting statement data from text items."""
 
@@ -11,7 +13,6 @@ class LibParser:
         Register JSON configuration string into the parser database.
 
         :param py_json_str: JSON string containing the configuration
-        :type py_json_str: str
         :raises ConfigLoadError: If the configuration cannot be loaded
         """
 
@@ -20,56 +21,45 @@ class LibParser:
         Register JSON configuration file into the parser database.
 
         :param py_file_path: Path to the JSON configuration file
-        :type py_file_path: str
         :raises ConfigLoadError: If the configuration file cannot be loaded
         """
 
-    def py_text_items_to_py_statement_data(self, py_text_items: list[dict]) -> object:
+    def py_pdf_path_to_py_statement_data(self, py_pdf_path: str) -> StatementData:
         """
-        Process a Python list of text items and return statement data.
+        Process a PDF file path from Python caller and return a Python StatementData
+        object.
 
-        :param py_text_items: List of text item dictionaries
-        :type py_text_items: list[dict]
-        :returns: StatementData object
-        :rtype: object
+        :param py_pdf_path: Path to the PDF file
         :raises StatementNotSupported: If no supported statement configuration is found
         :raises NoErrorFreeStatementData: If no error-free statement data could be found
         """
 
-    def py_text_items_to_debug_py_str(self, py_text_items: list[dict]) -> str:
-        """
-        Process a Python list of text items and return debug information as a string.
-
-        :param py_text_items: List of text item dictionaries
-        :type py_text_items: list[dict]
-        :returns: Debug information string
-        :rtype: str
-        """
-
-    def py_text_items_to_layout_py_str(
-        self, py_text_items: list[dict], y_bin: float, x_gap: float
+    def py_pdf_path_to_layout_py_str(
+        self, py_pdf_path: str, x_gap: float, y_bin: float
     ) -> str:
         """
-        Process a Python list of text items and return layout text as a string.
+        Process a PDF file into layout text str.
 
-        :param py_text_items: List of text item dictionaries
-        :type py_text_items: list[dict]
+        :param py_pdf_path: Path to the PDF file
         :param y_bin: Y coordinate bin size for sorting/merging text items
-        :type y_bin: float
         :param x_gap: X coordinate gap size for merging text items
-        :type x_gap: float
-        :returns: Layout text string
-        :rtype: str
         """
 
-    def py_layout_py_str_to_py_text_items(self, layout_str: str) -> list[dict]:
-        """
-        Process a layout text string and return a Python list of text item dictionaries.
+    def py_pdf_path_to_debug_py_str(self, py_pdf_path: str) -> str:
+        """Process a PDF file path from Python caller and return debug information as a
+        string.
 
-        :param layout_str: Layout text string
-        :type layout_str: str
-        :returns: List of text item dictionaries
-        :rtype: list[dict]
+        :param py_pdf_path: Path to the PDF file
+        """
+
+    def layout_py_str_py_statement_data(self, py_layout_str: str) -> StatementData:
+        """
+        Process a layout string and return statement data as a Python object of type
+        StatementData.
+
+        :param py_layout_str: Layout string content from text file
+        :raises StatementNotSupported: If no supported statement configuration is found
+        :raises NoErrorFreeStatementData: If no error-free statement data could be found
         """
 
 class NoErrorFreeStatementData(Exception):

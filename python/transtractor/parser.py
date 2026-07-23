@@ -4,7 +4,6 @@ from typing import cast
 
 from .structs.statement_data import StatementData
 from .transtractor import LibParser
-from .utils.extract import pdf_to_text_items
 from .utils.testing import run_test_protocol
 
 
@@ -39,10 +38,8 @@ class Parser:
         :raises StatementNotSupported: Statement format is unsupported or not properly
             identified
         """
-        py_text_items = pdf_to_text_items(pdf_file_path)
         sd: StatementData = cast(
-            StatementData,
-            self._inner.py_text_items_to_py_statement_data(py_text_items),
+            StatementData, self._inner.py_pdf_path_to_py_statement_data(pdf_file_path)
         )
         sd.set_filename(pdf_file_path)
         return sd
@@ -58,10 +55,8 @@ class Parser:
             identified
         """
         py_layout_str = open(layout_file_path, encoding="utf-8").read()
-        py_text_items = self._inner.py_layout_py_str_to_py_text_items(py_layout_str)
         sd: StatementData = cast(
-            StatementData,
-            self._inner.py_text_items_to_py_statement_data(py_text_items),
+            StatementData, self._inner.layout_py_str_py_statement_data(py_layout_str)
         )
         return sd
 
@@ -75,8 +70,7 @@ class Parser:
         :raises StatementNotSupported: Statement format is unsupported or not properly
             identified
         """
-        py_text_items = pdf_to_text_items(pdf_file_path)
-        result = self._inner.py_text_items_to_debug_py_str(py_text_items)
+        result = self._inner.py_pdf_path_to_debug_py_str(pdf_file_path)
         with open(output_file, "w", encoding="utf-8") as fh:
             fh.write(result)
         return result
@@ -93,9 +87,8 @@ class Parser:
         Note: The values of y_bin and x_gap are same same as those used for the
         "fix_text_order" parameter in the configuration JSON files.
         """
-        py_text_items = pdf_to_text_items(pdf_file_path)
-        layout_str: str = self._inner.py_text_items_to_layout_py_str(
-            py_text_items, y_bin, x_gap
+        layout_str: str = self._inner.py_pdf_path_to_layout_py_str(
+            pdf_file_path, y_bin, x_gap
         )
         with open(output_file, "w", encoding="utf-8") as fh:
             fh.write(layout_str)
